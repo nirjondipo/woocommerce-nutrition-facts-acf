@@ -39,6 +39,9 @@ class WC_Nutrition_Facts_Simple {
         
         // Add hook to parse new_nutrition_info field
         add_action('acf/save_post', array($this, 'parse_nutrition_info_field'), 20);
+        
+        // Declare WooCommerce HPOS compatibility
+        add_action('before_woocommerce_init', array($this, 'declare_woocommerce_compatibility'));
     }
 
     public function init() {
@@ -60,6 +63,15 @@ class WC_Nutrition_Facts_Simple {
 
     public function acf_missing_notice() {
         echo '<div class="error"><p><strong>WooCommerce Nutrition Facts</strong> requires Advanced Custom Fields (ACF) to be installed and active.</p></div>';
+    }
+
+    /**
+     * Declare WooCommerce HPOS compatibility
+     */
+    public function declare_woocommerce_compatibility() {
+        if (class_exists('\Automattic\WooCommerce\Utilities\FeaturesUtil')) {
+            \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
+        }
     }
 
     public function nutrition_facts_shortcode($atts) {
