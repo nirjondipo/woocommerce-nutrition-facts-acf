@@ -62,23 +62,6 @@ Use the shortcode to display nutrition facts anywhere:
 - **Separators**: Thick lines separate major sections
 - **Responsive Design**: Works on all device sizes
 
-## CSS Classes
-
-The plugin uses the following CSS classes for styling:
-
-- `.nflc` - Main container
-- `.nutrition-table` - Nutrition facts table
-- `.nt-header` - Header section
-- `.nt-title` - Main title
-- `.nt-row` - Nutrition row
-- `.nt-label` - Nutrient label
-- `.nt-amount` - Amount value
-- `.nt-sdv` - Standard Daily Value
-- `.nt-value` - Percentage Daily Value
-- `.nt-sublevel-1` - First level indentation
-- `.nt-sublevel-2` - Second level indentation
-- `.nt-footer` - Footer notes
-
 ## File Structure
 
 ```
