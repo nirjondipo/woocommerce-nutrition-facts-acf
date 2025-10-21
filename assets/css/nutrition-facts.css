@@ -1,0 +1,413 @@
+/**
+ * Nutrition Facts CSS - Matching Original Plugin Design
+ *
+ * @package WooCommerce_Nutrition_Facts_ACF
+ * @version 1.0.0
+ */
+
+/* Nutrition Meta */
+.nflc .nutrition-table {
+	margin: 0 !important;
+	padding: 0;
+	list-style: none;
+	border: 1px solid rgba(0,0,0,.24);
+	font-family: inherit;
+	font-size: 13px;
+	line-height: 1.5385;
+	word-wrap: break-word;
+	color: rgba(0,0,0,.87);	
+}
+
+.nflc.std .nutrition-table {
+	font-family: "Helvetica", Arial, sans-serif;
+}
+
+.nflc .nutrition-table > li {
+	position: relative;
+	overflow: hidden;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	border-bottom: 1px solid rgba(0,0,0,.12);
+	display: table;
+	width: 100%;
+	table-layout: fixed;
+}
+
+.nflc .nutrition-table > li.nt-header {
+	border-bottom-color: rgba(0,0,0,.24);
+}
+
+.nflc .nutrition-table > li > span {
+	display: table-cell;
+	padding: 4px 8px;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	vertical-align: middle;
+}
+
+.nflc .nutrition-table > li > span > b {
+	color: red;
+	font-weight: 400;
+}
+
+.nflc .nutrition-table > li > .col-80 {
+	width: 80%;
+}
+
+.nflc .nutrition-table > li > .col-70 {
+	width: 70%;
+}
+
+.nflc .nutrition-table > li > .col-67 {
+	width: 67%;
+}
+
+.nflc .nutrition-table > li > .col-60 {
+	width: 60%;
+}
+
+.nflc .nutrition-table > li > .col-50 {
+	width: 50%;
+}
+
+.nflc .nutrition-table > li > .col-45 {
+	width: 45%;
+}
+
+.nflc .nutrition-table > li > .col-40 {
+	width: 40%;
+}
+
+.nflc .nutrition-table > li > .col-33 {
+	width: 33%;
+}
+
+.nflc .nutrition-table > li > .col-30 {
+	width: 30%;
+}
+
+.nflc .nutrition-table > li > .col-20 {
+	width: 20%;
+}
+
+.nflc .nutrition-table > li > .col-22 {
+	width: 22%;
+}
+
+.nflc .nutrition-table > li > .col-100 {
+	width: 100%;
+}
+
+.nflc .nt-title {
+	float: none;
+	width: 100%;
+	padding: 6px 8px;
+}
+
+.nflc .nutrition-table > li.nt-footer {
+	font-size: 12px;
+	line-height: 18px;
+	padding: 8px 4px;
+	color: #757575;
+	background: transparent !important;
+}
+
+.nflc.classic .nutrition-table > li.nt-footer {
+	padding: 8px;
+}
+
+.nflc .nutrition-table > li.nt-two-col > .nt-label {
+	width: 67%;
+}
+
+.nflc .nutrition-table > li > .nt-value {
+	font-weight: bold;
+}
+
+.nflc .nutrition-table > li.nt-two-col > .nt-value {
+	width: 33%;
+}
+
+.nflc .nutrition-table > li:last-child {
+	border: none;
+}
+
+.nflc .nutrition-table > li.nt-four-col > span {
+	width: 25%;
+}
+
+.nflc .nutrition-table .nt-title {
+	display: block;
+	font-size: 24px;
+	line-height: 28px;
+	font-weight: bold;
+	margin: 0;
+}
+
+.nflc .nutrition-table .nt-value,
+.nflc .nutrition-table .pdv-label {
+	text-align: right;
+}
+
+.nflc .nutrition-table .font-bold {
+	font-weight: bold;
+}
+
+.nflc .nutrition-table .nt-head {
+	font-size: 12px;
+	line-height: 16px;
+	color: rgba(0,0,0,.62);
+}
+
+.nflc .nutrition-table .nt-head > span {
+	padding: 6px 8px;
+}
+
+.nflc .nutrition-table .nt-sep {
+	border-bottom: 1px solid rgba(0,0,0,.24);
+}
+
+.nflc .nutrition-table .nt-sublevel-1 .nt-label {
+	padding-left: 20px;
+}
+
+.nflc .nutrition-table .nt-sublevel-2 .nt-label {
+	padding-left: 36px;
+}
+
+.nflc .nutrition-table .nt-sublevel-3 .nt-label {
+	padding-left: 52px;
+}
+
+/* Flat and Striped scheme */
+.nflc.flat .nutrition-table {
+	border: 0;
+	overflow: hidden;
+}
+
+.nflc.flat .nutrition-table > li,
+.nflc.flat .nutrition-table > li:last-child,
+.nflc.flat .nutrition-table > li.nt-header,
+.nflc.flat .nutrition-table > li.nt-sep {
+	border: 0;
+}
+
+.nflc .nutrition-table .nt-head {
+	display: flex;
+}
+
+.nflc.flat .nutrition-table .nt-head {
+	color: rgba(0,0,0,.87);
+}
+
+.nflc.flat.striped .nutrition-table > li:nth-child(2n+1) {
+	background: rgba(0,0,0,.05);
+}
+
+.nflc.flat .nutrition-table > li > .nt-amount {
+	background: #FFE0B2;
+}
+
+.nflc.flat.striped .nutrition-table > li:nth-child(2n) > .nt-amount {
+	background: #FFF3E0;
+}
+
+.nflc.flat .nutrition-table > li > .nt-value {
+	background: #BBDEFB;
+}
+
+.nflc.flat.striped .nutrition-table > li:nth-child(2n) > .nt-value {
+	background: #E3F2FD;
+}
+
+.nflc.flat .nutrition-table > li > .nt-sdv {
+	background: #C8E6C9;
+}
+
+.nflc.flat.striped .nutrition-table > li:nth-child(2n) > .nt-sdv {
+	background: #E8F5E9;
+}
+
+.nflc.flat .nutrition-table > li.nt-footer {
+	color: #757575;
+	background: transparent !important;
+}
+
+.nflc.flat .nutrition-table .nt-header {
+	background: #FFF59D;
+}
+
+.nflc.flat .nutrition-table .nt-head > .nutrient-label {
+	background: #9e9e9e;
+	color: #fff;
+}
+
+.nflc.flat .nutrition-table .nt-head > .amount-label {
+	background: #F57C00;
+	color: #fff;
+}
+
+.nflc.flat .nutrition-table .nt-head > .sdv-label {
+	background: #43A047;
+	color: #fff;
+}
+
+.nflc.flat .nutrition-table .nt-head > .pdv-label {
+	background: #448AFF;
+	color: #fff;
+}
+
+/* Standard scheme */
+.nflc.std .nutrition-table {
+	padding: 0 4px;
+	border-color: #000;
+	color: #000;
+}
+
+.nflc.std .nutrition-table > li {
+	color: inherit;
+	border-bottom: 1px dotted #000;
+}
+
+.nflc.std .nutrition-table > .b-0 {
+	border: 0;
+}
+
+.nflc.std .nt-title {
+	margin: 0;
+	padding: 0;
+	font-size: 30px;
+	line-height: 36px;
+	font-weight: bold;
+}
+
+.nflc.std .nutrition-table > li > span {
+	padding: 0;
+}
+
+.nflc.std .nutrition-table > li.nt-head > span {
+	padding: 2px 0;
+}
+
+.nflc.std .nutrition-table .nt-sublevel-1 .nt-label {
+	padding-left: 12px;
+}
+
+.nflc.std .nutrition-table .nt-sublevel-2 .nt-label {
+	padding-left: 24px;
+}
+
+.nflc.std .nutrition-table .nt-sublevel-3 .nt-label {
+	padding-left: 36px;
+} 
+
+.nflc.std .nutrition-table li.sep-1 {
+	border-bottom: 1px solid #000;
+}
+
+.nflc.std .nutrition-table li.sep-4 {
+	border-bottom: 4px solid #000;
+}
+
+.nflc.std .nutrition-table li.sep-6 {
+	border-bottom: 6px solid #000;
+}
+
+.nflc.std .nutrition-table li.sep-8 {
+	border-bottom: 9px solid #000;
+}
+
+.nflc.std .nutrition-table li.sep-10 {
+	border-bottom: 9px solid #000;
+}
+
+.nflc.std .nutrition-table li.nt-footer {
+	border-top: 4px solid #000;
+}
+
+.nflc.std .nutrition-table li:nth-last-child(2) {
+	border: 0;
+}
+
+/* Tabular Scheme */
+.nflc.tabular .nutrition-table > li > span:not(:last-child) {
+	border-right: 1px solid rgba(0,0,0,.12);
+}
+
+/* Lined Scheme */
+.nflc.lined .nutrition-table {
+	border-left: 0;
+	border-right: 0;
+}
+
+.nflc.lined .nutrition-table > li.nt-header > .nt-title,
+.nflc.lined .nutrition-table > li > span,
+.nflc.lined .nutrition-table > li.nt-footer {
+	padding-left: 0;
+	padding-right: 0;
+}
+
+/* Helper classes */
+.fs-24 {
+	font-size: 24px;
+	line-height: 1;
+}
+
+.clearfix:after {
+	content: "";
+	clear: both;
+	display: table;
+}
+
+/* Assistive text */
+.screen-reader-text,
+.sr-only {
+	clip: rect(1px, 1px, 1px, 1px);
+	position: absolute;
+}
+
+.screen-reader-text:focus,
+.sr-only:focus {
+	background-color: #f5f5f5;
+	clip: auto;
+	display: block;
+	height: auto;
+	line-height: normal;
+	padding: 16px 24px;
+	position: absolute;
+	left: 4px;
+	top: 4px;
+	text-decoration: none;
+	text-transform: none;
+	width: auto;
+	z-index: 100000; /* Above WP toolbar */
+
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+
+	-webkit-box-shadow: 0 1px 3px rgba(0,0,0,.24);
+	-moz-box-shadow: 0 1px 3px rgba(0,0,0,.24);
+	box-shadow: 0 1px 3px rgba(0,0,0,.24);
+}
+
+.print-only {
+	display: none !important;
+}
+
+.serving-size {
+	font-weight: bold;
+	font-size: 1.2em;
+}
+
+.calories .nt-label {
+	font-size: 2em;
+	line-height: 1.25;
+}
+
+.calories .nt-value {
+	font-size: 2.5em;
+	line-height: 1;
+}
