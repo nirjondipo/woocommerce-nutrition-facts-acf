@@ -37,7 +37,7 @@ Use the shortcode to display nutrition facts anywhere:
 ```
 [wc_nutrition_facts]
 ```
-
+ 
 #### Shortcode Attributes
 
 | Attribute | Description | Example |
