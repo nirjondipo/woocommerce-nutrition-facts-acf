@@ -34,18 +34,70 @@ A comprehensive WordPress plugin that adds nutrition facts fields to WooCommerce
 
 Use the shortcode to display nutrition facts anywhere:
 
+#### **Basic Usage:**
 ```
 [wc_nutrition_facts]
 ```
- 
-#### Shortcode Attributes
 
-| Attribute | Description | Example |
-|-----------|-------------|---------|
-| `product_id` | Specific product ID | `[wc_nutrition_facts product_id="123"]` |
-| `heading` | Custom heading | `[wc_nutrition_facts heading="Nutrition Information"]` |
-| `show_daily_values` | Show/hide Standard DV column | `[wc_nutrition_facts show_daily_values="true"]` |
-| `round_daily_values` | Round percentages | `[wc_nutrition_facts round_daily_values="false"]` |
+#### **On Single Product Pages:**
+The shortcode automatically detects the current product and displays its nutrition facts:
+
+```php
+// In single-product.php template
+echo do_shortcode('[wc_nutrition_facts]');
+
+// In Elementor tabs
+[wc_nutrition_facts]
+
+// In product descriptions
+[wc_nutrition_facts]
+```
+
+#### **With Custom Attributes:**
+```
+[wc_nutrition_facts product_id="123" heading="Nutrition Information" show_daily_values="true"]
+```
+
+#### **Shortcode Attributes:**
+
+| Attribute | Description | Default | Example |
+|-----------|-------------|---------|---------|
+| `product_id` | Specific product ID (optional) | Auto-detect | `[wc_nutrition_facts product_id="123"]` |
+| `heading` | Custom heading | "Nutrition Facts" | `[wc_nutrition_facts heading="Nutrition Information"]` |
+| `show_daily_values` | Show/hide Standard DV column | `true` | `[wc_nutrition_facts show_daily_values="false"]` |
+| `round_daily_values` | Round percentages to whole numbers | `true` | `[wc_nutrition_facts round_daily_values="false"]` |
+
+#### **Usage Examples:**
+
+**✅ Single Product Page (Automatic):**
+```
+[wc_nutrition_facts]
+```
+
+**✅ Specific Product:**
+```
+[wc_nutrition_facts product_id="456"]
+```
+
+**✅ Custom Heading:**
+```
+[wc_nutrition_facts heading="Nutritional Information"]
+```
+
+**✅ Hide Standard DV Column:**
+```
+[wc_nutrition_facts show_daily_values="false"]
+```
+
+**✅ Show Decimal Percentages:**
+```
+[wc_nutrition_facts round_daily_values="false"]
+```
+
+**✅ Complete Example:**
+```
+[wc_nutrition_facts product_id="789" heading="Nutrition Facts" show_daily_values="true" round_daily_values="true"]
+```
 
 ### Elementor Integration
 

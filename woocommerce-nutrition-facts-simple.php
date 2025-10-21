@@ -79,12 +79,23 @@ class WC_Nutrition_Facts_Simple {
             if ($product) {
                 $product_id = $product->get_id();
             }
+        } elseif (is_singular('product')) {
+            global $post;
+            if ($post) {
+                $product_id = $post->ID;
+            }
         } else {
-            return '<p>No product specified for nutrition facts.</p>';
+            // Try to get product ID from global $post if available
+            global $post;
+            if ($post && get_post_type($post->ID) === 'product') {
+                $product_id = $post->ID;
+            } else {
+                return ''; // Return empty string instead of error message
+            }
         }
 
         if (empty($product_id)) {
-            return '<p>Invalid product ID for nutrition facts.</p>';
+            return ''; // Return empty string if no valid product ID
         }
 
         // Get nutrition data from post_meta (parsed data)
