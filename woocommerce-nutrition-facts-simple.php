@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: WooCommerce Nutrition Facts ACF
+ * Plugin Name: WooCommerce Nutrition Facts
  * Plugin URI: https://github.com/your-username/woocommerce-nutrition-facts-acf
  * Description: Add nutrition facts labels to WooCommerce products using ACF fields. Automatically parses nutrition data from a single field and populates individual fields.
  * Version: 1.0.0
@@ -518,20 +518,27 @@ class WC_Nutrition_Facts_Simple {
                         $dv = !empty($nf['sv']) ? round((float)$field_value * 100 / $nf['sv'], $offset) : '';
                         
                         if ($show_daily_values) {
-                            $format = '<li%1$s><span class="nt-label col-40%2$s">%3$s</span><span class="nt-amount col-20"%4$s>%5$s</span>%6$s%7$s</li>';
+                            // Always render all 4 columns for proper alignment
+                            printf('<li%s><span class="nt-label col-40%s">%s</span><span class="nt-amount col-20"%s>%s</span><span class="sdv-label col-20">%s</span><span class="pdv-label col-20">%s</span></li>',
+                                !empty($nf['liclass']) ? ' class="' . esc_attr($nf['liclass']) . '"' : '',
+                                !empty($nf['labelclass']) ? ' ' . esc_attr($nf['labelclass']) : '',
+                                esc_html($nf['label']),
+                                !empty($nf['schema']) ? ' itemprop="' . esc_attr($nf['schema']) . '"' : '',
+                                esc_html($field_value . $nf['unit']),
+                                !empty($nf['sv']) ? esc_html($nf['sv'] . $nf['unit']) : '',
+                                !empty($dv) ? esc_html($dv . '%') : ''
+                            );
                         } else {
-                            $format = '<li%1$s><span class="nt-label col-40%2$s">%3$s</span><span class="nt-amount col-30"%4$s>%5$s</span>%7$s</li>';
+                            // 3 columns when Standard DV is hidden
+                            printf('<li%s><span class="nt-label col-40%s">%s</span><span class="nt-amount col-30"%s>%s</span><span class="pdv-label col-30">%s</span></li>',
+                                !empty($nf['liclass']) ? ' class="' . esc_attr($nf['liclass']) . '"' : '',
+                                !empty($nf['labelclass']) ? ' ' . esc_attr($nf['labelclass']) : '',
+                                esc_html($nf['label']),
+                                !empty($nf['schema']) ? ' itemprop="' . esc_attr($nf['schema']) . '"' : '',
+                                esc_html($field_value . $nf['unit']),
+                                !empty($dv) ? esc_html($dv . '%') : ''
+                            );
                         }
-
-                        printf($format,
-                            !empty($nf['liclass']) ? ' class="' . esc_attr($nf['liclass']) . '"' : '',
-                            !empty($nf['labelclass']) ? ' ' . esc_attr($nf['labelclass']) : '',
-                            esc_html($nf['label']),
-                            !empty($nf['schema']) ? ' itemprop="' . esc_attr($nf['schema']) . '"' : '',
-                            esc_html($field_value . $nf['unit']),
-                            $show_daily_values && !empty($nf['sv']) ? '<span class="nt-amount col-20">' . esc_html($nf['sv'] . $nf['unit']) . '</span>' : '',
-                            !empty($dv) ? '<span class="nt-amount col-20">' . esc_html($dv . '%') . '</span>' : ''
-                        );
                     }
                 }
                 ?>

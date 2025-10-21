@@ -195,48 +195,48 @@ For example, we can use the following as field values for New Nutrition info `ne
 <p>Serving Size 1 cup (240ml)<br /> Serving Per Container 4<br />Calories 180<br /> Total Fat 5 g 6%<br /> Saturated Fat 2 g 10%<br /> Trans Fat 0 g<br /> Cholesterol 10 mg 3%<br /> Sodium 25 mg 1%<br /> Total Carbohydrate 14 g 5%<br /> Dietary Fiber 6 g 21%<br /> Total Sugars 4 g<br /> Includes 2 g Added Sugars 4%<br /> Protein 20 g 40%<br /> Vitamin D 0 mcg 0%<br /> Calcium 246 mg 19%<br /> Iron 3 mg 17%<br /> Potassium 601 mg 13%<br /> Vitamin A 900 IU 100%<br /> Vitamin C 89 mg 99%<br /> Vitamin E 15 IU 100%<br /> Vitamin K 119 mcg 99%<br /> Vitamin B1 1.2 mg 100%<br /> Vitamin B2 1.3 mg 100%<br /> Vitamin B3 16 mg 100%<br /> Vitamin B5 5 mg 100%<br /> Vitamin B6 1.7 mg 100%<br /> Vitamin B12 2.4 mcg 100%<br /> Folate 400 mcg 100%<br /> Biotin 30 mcg 100%<br /> Choline 550 mg 100%<br /> Phosphorus 1250 mg 100%<br /> Magnesium 420 mg 100%<br /> Zinc 11 mg 100%<br /> Selenium 55 mcg 100%<br /> Copper 0.9 mg 100%<br /> Manganese 2.3 mg 100%<br /> Chromium 35 mcg 100%<br /> Molybdenum 45 mcg 100%<br /> Chloride 2300 mg 100%</p>
 ```
 
-This is how the data will look in the `new_nutrition_info` field for better understanding:
+This is how the data will look in the `AirTable` field for better understanding:
 
 ```html
-<p>Serving Size 1 cup (240ml)<br />
-Serving Per Container 4<br />
-Calories 180<br />
-Total Fat 5 g 6%<br />
-Saturated Fat 2 g 10%<br />
-Trans Fat 0 g<br />
-Cholesterol 10 mg 3%<br />
-Sodium 25 mg 1%<br />
-Total Carbohydrate 14 g 5%<br />
-Dietary Fiber 6 g 21%<br />
-Total Sugars 4 g<br />
-Includes 2 g Added Sugars 4%<br />
-Protein 20 g 40%<br />
-Vitamin D 0 mcg 0%<br />
-Calcium 246 mg 19%<br />
-Iron 3 mg 17%<br />
-Potassium 601 mg 13%<br />
-Vitamin A 900 IU 100%<br />
-Vitamin C 89 mg 99%<br />
-Vitamin E 15 IU 100%<br />
-Vitamin K 119 mcg 99%<br />
-Vitamin B1 1.2 mg 100%<br />
-Vitamin B2 1.3 mg 100%<br />
-Vitamin B3 16 mg 100%<br />
-Vitamin B5 5 mg 100%<br />
-Vitamin B6 1.7 mg 100%<br />
-Vitamin B12 2.4 mcg 100%<br />
-Folate 400 mcg 100%<br />
-Biotin 30 mcg 100%<br />
-Choline 550 mg 100%<br />
-Phosphorus 1250 mg 100%<br />
-Magnesium 420 mg 100%<br />
-Zinc 11 mg 100%<br />
-Selenium 55 mcg 100%<br />
-Copper 0.9 mg 100%<br />
-Manganese 2.3 mg 100%<br />
-Chromium 35 mcg 100%<br />
-Molybdenum 45 mcg 100%<br />
-Chloride 2300 mg 100%</p>
+Serving Size 1 cup (240ml)
+Serving Per Container 4
+Calories 180
+Total Fat 5 g 6%
+Saturated Fat 2 g 10%
+Trans Fat 0 g
+Cholesterol 10 mg 3%
+Sodium 25 mg 1%
+Total Carbohydrate 14 g 5%
+Dietary Fiber 6 g 21%
+Total Sugars 4 g
+Includes 2 g Added Sugars 4%
+Protein 20 g 40%
+Vitamin D 0 mcg 0%
+Calcium 246 mg 19%
+Iron 3 mg 17%
+Potassium 601 mg 13%
+Vitamin A 900 IU 100%
+Vitamin C 89 mg 99%
+Vitamin E 15 IU 100%
+Vitamin K 119 mcg 99%
+Vitamin B1 1.2 mg 100%
+Vitamin B2 1.3 mg 100%
+Vitamin B3 16 mg 100%
+Vitamin B5 5 mg 100%
+Vitamin B6 1.7 mg 100%
+Vitamin B12 2.4 mcg 100%
+Folate 400 mcg 100%
+Biotin 30 mcg 100%
+Choline 550 mg 100%
+Phosphorus 1250 mg 100%
+Magnesium 420 mg 100%
+Zinc 11 mg 100%
+Selenium 55 mcg 100%
+Copper 0.9 mg 100%
+Manganese 2.3 mg 100%
+Chromium 35 mcg 100%
+Molybdenum 45 mcg 100%
+Chloride 2300 mg 100%
 ```
 
 ### What Happens When You Save

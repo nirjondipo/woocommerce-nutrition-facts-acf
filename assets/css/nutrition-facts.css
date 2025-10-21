@@ -28,28 +28,41 @@
 	list-style: none;
 	margin: 0;
 	padding: 0;
-	border-bottom: 1px solid rgba(0,0,0,.12);
 	display: table;
 	width: 100%;
+	border-bottom: 1px solid rgba(0,0,0,.12);
 	table-layout: fixed;
 }
+
 
 .nflc .nutrition-table > li.nt-header {
 	border-bottom-color: rgba(0,0,0,.24);
 }
 
 .nflc .nutrition-table > li > span {
-	display: table-cell;
-	padding: 4px 8px;
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	box-sizing: border-box;
-	vertical-align: middle;
+    display: table-cell;
+    padding: 4px 8px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    vertical-align: middle;
+    min-height: 20px;
+}
+
+/* Ensure empty cells maintain column width */
+.nflc .nutrition-table > li > span:empty {
+    min-height: 20px;
+    content: "&nbsp;";
 }
 
 .nflc .nutrition-table > li > span > b {
 	color: red;
 	font-weight: 400;
+}
+
+/* Column width classes */
+.nflc .nutrition-table > li > .col-100 {
+	width: 100%;
 }
 
 .nflc .nutrition-table > li > .col-80 {
@@ -60,10 +73,6 @@
 	width: 70%;
 }
 
-.nflc .nutrition-table > li > .col-67 {
-	width: 67%;
-}
-
 .nflc .nutrition-table > li > .col-60 {
 	width: 60%;
 }
@@ -72,16 +81,8 @@
 	width: 50%;
 }
 
-.nflc .nutrition-table > li > .col-45 {
-	width: 45%;
-}
-
 .nflc .nutrition-table > li > .col-40 {
 	width: 40%;
-}
-
-.nflc .nutrition-table > li > .col-33 {
-	width: 33%;
 }
 
 .nflc .nutrition-table > li > .col-30 {
@@ -90,14 +91,6 @@
 
 .nflc .nutrition-table > li > .col-20 {
 	width: 20%;
-}
-
-.nflc .nutrition-table > li > .col-22 {
-	width: 22%;
-}
-
-.nflc .nutrition-table > li > .col-100 {
-	width: 100%;
 }
 
 .nflc .nt-title {
@@ -147,7 +140,28 @@
 }
 
 .nflc .nutrition-table .nt-value,
-.nflc .nutrition-table .pdv-label {
+.nflc .nutrition-table .pdv-label,
+.nflc .nutrition-table .nt-amount {
+	text-align: right;
+}
+
+/* Ensure consistent alignment for all data cells */
+.nflc .nutrition-table > li > .nt-amount {
+	text-align: left;
+	padding: 4px 8px;
+}
+
+.nflc .nutrition-table > li > .nt-label {
+	text-align: left;
+	padding: 4px 8px;
+}
+
+/* Specific alignment for different columns */
+.nflc .nutrition-table > li > .sdv-label {
+	text-align: left;
+}
+
+.nflc .nutrition-table > li > .pdv-label {
 	text-align: right;
 }
 
@@ -195,7 +209,33 @@
 }
 
 .nflc .nutrition-table .nt-head {
-	display: flex;
+	display: table;
+	width: 100%;
+	table-layout: fixed;
+}
+
+.nflc .nutrition-table .nt-head > span {
+	display: table-cell;
+	font-weight: bold;
+	padding: 6px 8px;
+	vertical-align: middle;
+}
+
+/* Specific header alignment */
+.nflc .nutrition-table .nt-head > .nutrient-label {
+	text-align: left;
+}
+
+.nflc .nutrition-table .nt-head > .amount-label {
+	text-align: left;
+}
+
+.nflc .nutrition-table .nt-head > .sdv-label {
+	text-align: left;
+}
+
+.nflc .nutrition-table .nt-head > .pdv-label {
+	text-align: right;
 }
 
 .nflc.flat .nutrition-table .nt-head {
@@ -403,20 +443,20 @@
 }
 
 .calories .nt-label {
-	font-size: 1.2em;
+	font-size: 1.5em;
 	line-height: 1.25;
 }
 
 .calories .nt-value {
-	font-size: 1.4em;
+    font-size: 1.5em;
 	line-height: 1;
 }
 .nflc .nutrition-table > li > span {
-    display: block;
-    width: 33%;
-    float: left;
+    display: table-cell;
     padding: 4px 8px;
+    width: 33%;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
+    vertical-align: middle;
 }
