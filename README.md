@@ -226,8 +226,13 @@ When you paste nutrition data into the `new_nutrition_info` field and save the p
 - ✅ **Displays nutrition label** on frontend with parsed data
 
 ### Complete Example for `new_nutrition_info` Field
+For example, we can use the following as field values for New Nutrition info `new_nutrition_info`
 
-Copy and paste this example into your `new_nutrition_info` field:
+```html
+<p>Serving Size 1 cup (240ml)<br /> Serving Per Container 4<br />Calories 180<br /> Total Fat 5 g 6%<br /> Saturated Fat 2 g 10%<br /> Trans Fat 0 g<br /> Cholesterol 10 mg 3%<br /> Sodium 25 mg 1%<br /> Total Carbohydrate 14 g 5%<br /> Dietary Fiber 6 g 21%<br /> Total Sugars 4 g<br /> Includes 2 g Added Sugars 4%<br /> Protein 20 g 40%<br /> Vitamin D 0 mcg 0%<br /> Calcium 246 mg 19%<br /> Iron 3 mg 17%<br /> Potassium 601 mg 13%<br /> Vitamin A 900 IU 100%<br /> Vitamin C 89 mg 99%<br /> Vitamin E 15 IU 100%<br /> Vitamin K 119 mcg 99%<br /> Vitamin B1 1.2 mg 100%<br /> Vitamin B2 1.3 mg 100%<br /> Vitamin B3 16 mg 100%<br /> Vitamin B5 5 mg 100%<br /> Vitamin B6 1.7 mg 100%<br /> Vitamin B12 2.4 mcg 100%<br /> Folate 400 mcg 100%<br /> Biotin 30 mcg 100%<br /> Choline 550 mg 100%<br /> Phosphorus 1250 mg 100%<br /> Magnesium 420 mg 100%<br /> Zinc 11 mg 100%<br /> Selenium 55 mcg 100%<br /> Copper 0.9 mg 100%<br /> Manganese 2.3 mg 100%<br /> Chromium 35 mcg 100%<br /> Molybdenum 45 mcg 100%<br /> Chloride 2300 mg 100%</p>
+```
+
+This is how the data will look in the `new_nutrition_info` field for better understanding:
 
 ```html
 <p>Serving Size 1 cup (240ml)<br />
@@ -269,10 +274,6 @@ Manganese 2.3 mg 100%<br />
 Chromium 35 mcg 100%<br />
 Molybdenum 45 mcg 100%<br />
 Chloride 2300 mg 100%</p>
-```
-For example, we can use the following as field values for New Nutrition info `new_nutrition_info`
-```html
-<p>Serving Size 1 cup (240ml)<br /> Serving Per Container 4<br />Calories 180<br /> Total Fat 5 g 6%<br /> Saturated Fat 2 g 10%<br /> Trans Fat 0 g<br /> Cholesterol 10 mg 3%<br /> Sodium 25 mg 1%<br /> Total Carbohydrate 14 g 5%<br /> Dietary Fiber 6 g 21%<br /> Total Sugars 4 g<br /> Includes 2 g Added Sugars 4%<br /> Protein 20 g 40%<br /> Vitamin D 0 mcg 0%<br /> Calcium 246 mg 19%<br /> Iron 3 mg 17%<br /> Potassium 601 mg 13%<br /> Vitamin A 900 IU 100%<br /> Vitamin C 89 mg 99%<br /> Vitamin E 15 IU 100%<br /> Vitamin K 119 mcg 99%<br /> Vitamin B1 1.2 mg 100%<br /> Vitamin B2 1.3 mg 100%<br /> Vitamin B3 16 mg 100%<br /> Vitamin B5 5 mg 100%<br /> Vitamin B6 1.7 mg 100%<br /> Vitamin B12 2.4 mcg 100%<br /> Folate 400 mcg 100%<br /> Biotin 30 mcg 100%<br /> Choline 550 mg 100%<br /> Phosphorus 1250 mg 100%<br /> Magnesium 420 mg 100%<br /> Zinc 11 mg 100%<br /> Selenium 55 mcg 100%<br /> Copper 0.9 mg 100%<br /> Manganese 2.3 mg 100%<br /> Chromium 35 mcg 100%<br /> Molybdenum 45 mcg 100%<br /> Chloride 2300 mg 100%</p>
 ```
 
 ### What Happens When You Save
