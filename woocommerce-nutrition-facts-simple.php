@@ -37,6 +37,10 @@ class WC_Nutrition_Facts_Simple {
         add_shortcode('wc_nutrition_facts', array($this, 'nutrition_facts_shortcode'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
         add_filter('body_class', array($this, 'add_nutrition_body_class'));
+        
+        // Add hook to parse new_nutrition_info field
+        add_action('acf/save_post', array($this, 'parse_nutrition_info_field'), 20);
+        
     }
 
     public function init() {
@@ -68,6 +72,10 @@ class WC_Nutrition_Facts_Simple {
         acf_add_local_field_group(array(
             'key' => 'group_nutrition_facts_simple',
             'title' => 'Nutrition Facts',
+            'style' => 'seamless',
+            'label_placement' => 'top',
+            'instruction_placement' => 'label',
+            'hide_on_screen' => array('the_content', 'excerpt', 'discussion', 'comments', 'revisions', 'slug', 'author', 'format', 'page_attributes', 'featured_image', 'categories', 'tags', 'send-trackbacks'),
             'fields' => array(
                 // Basic Information
                 array(
@@ -602,8 +610,8 @@ class WC_Nutrition_Facts_Simple {
         $chloride = get_field('chloride', $product_id);
 
         // Check if we have any nutrition data (including 0 values)
-        $has_nutrition_data = ($serving_size !== '' && $serving_size !== null) || 
-                             ($calories !== '' && $calories !== null) || 
+        // Don't require serving_size or serving_per_container for basic nutrition data
+        $has_nutrition_data = ($calories !== '' && $calories !== null) || 
                              ($total_fat !== '' && $total_fat !== null) || 
                              ($sodium !== '' && $sodium !== null) || 
                              ($carbohydrate !== '' && $carbohydrate !== null) || 
@@ -678,9 +686,11 @@ class WC_Nutrition_Facts_Simple {
                     </li>
                 <?php endif; ?>
                 
-                <li class="nt-row b-0 font-bold amount-per-serving">
-                    <span class="nt-label col-100"><?php esc_html_e('Amount per serving', 'wc-nutrition-simple'); ?></span>
-                </li>
+                <?php if ($serving_size !== '' && $serving_size !== null): ?>
+                    <li class="nt-row b-0 font-bold amount-per-serving sep-1">
+                        <span class="nt-label col-100"><?php esc_html_e('Amount per serving', 'wc-nutrition-simple'); ?></span>
+                    </li>
+                <?php endif; ?>
                 
                 <?php if ($calories !== '' && $calories !== null): ?>
                     <li class="nt-row font-bold calories sep-4">
@@ -1176,6 +1186,97 @@ class WC_Nutrition_Facts_Simple {
             WC_NUTRITION_SIMPLE_VERSION
         );
     }
+    
+    /**
+     * Parse new_nutrition_info field and update individual ACF fields
+     */
+    public function parse_nutrition_info_field($post_id) {
+        // Only process WooCommerce products
+        if (get_post_type($post_id) !== 'product') {
+            return;
+        }
+        
+        // Get the new_nutrition_info field value
+        $nutrition_info = get_field('new_nutrition_info', $post_id);
+        
+        // Define all nutrition fields that should be cleared if no source data
+        $all_nutrition_fields = array(
+            'serving_size', 'serving_per_container', 'calories', 'total_fat', 'saturated_fat', 
+            'trans_fat', 'cholesterol', 'sodium', 'carbohydrate', 'fiber', 'sugar', 
+            'added_sugars', 'protein', 'vitamin_d', 'calcium', 'iron', 'potassium'
+        );
+        
+        if (empty($nutrition_info)) {
+            // Clear all nutrition fields if no source data
+            foreach ($all_nutrition_fields as $field_name) {
+                update_field($field_name, '', $post_id);
+            }
+            return;
+        }
+        
+        // Parse the nutrition data
+        $parsed_data = $this->parse_nutrition_text($nutrition_info);
+        
+        // Clear all fields first
+        foreach ($all_nutrition_fields as $field_name) {
+            update_field($field_name, '', $post_id);
+        }
+        
+        // Update individual ACF fields with parsed data
+        if (!empty($parsed_data)) {
+            foreach ($parsed_data as $field_name => $value) {
+                update_field($field_name, $value, $post_id);
+            }
+        }
+    }
+    
+    /**
+     * Parse nutrition text and extract values
+     */
+    private function parse_nutrition_text($text) {
+        $parsed_data = array();
+        
+        // Convert <br> tags to spaces and remove other HTML tags
+        $text = str_replace(array('<br>', '<br/>', '<br />'), ' ', $text);
+        $text = strip_tags($text);
+        $text = preg_replace('/\s+/', ' ', $text); // Replace multiple spaces with single space
+        $text = trim($text);
+        
+        // Define field mappings
+        $field_mappings = array(
+            'serving_size' => array('patterns' => array('/Serving Size\s+(\d+(?:\.\d+)?)/i')),
+            'serving_per_container' => array('patterns' => array('/Serving Per Container\s+(\d+(?:\.\d+)?)/i')),
+            'calories' => array('patterns' => array('/Calories\s+(\d+)/i')),
+            'total_fat' => array('patterns' => array('/Total Fat\s+(\d+(?:\.\d+)?)\s*g/i')),
+            'saturated_fat' => array('patterns' => array('/Saturated Fat\s+(\d+(?:\.\d+)?)\s*g/i')),
+            'trans_fat' => array('patterns' => array('/Trans Fat\s+(\d+(?:\.\d+)?)\s*g/i')),
+            'cholesterol' => array('patterns' => array('/Cholesterol\s+(\d+(?:\.\d+)?)\s*mg/i')),
+            'sodium' => array('patterns' => array('/Sodium\s+(\d+(?:\.\d+)?)\s*mg/i')),
+            'carbohydrate' => array('patterns' => array('/Total Carbohydrate\s+(\d+(?:\.\d+)?)\s*g/i')),
+            'fiber' => array('patterns' => array('/Dietary Fiber\s+(\d+(?:\.\d+)?)\s*g/i')),
+            'sugar' => array('patterns' => array('/Total Sugars\s+(\d+(?:\.\d+)?)\s*g/i')),
+            'added_sugars' => array('patterns' => array('/Includes\s+(\d+(?:\.\d+)?)\s*g\s+Added Sugars/i', '/Added Sugars\s+(\d+(?:\.\d+)?)\s*g/i')),
+            'protein' => array('patterns' => array('/Protein\s+(\d+(?:\.\d+)?)\s*g/i')),
+            'vitamin_d' => array('patterns' => array('/Vitamin D\s+(\d+(?:\.\d+)?)\s*(?:mcg|μg)/i')),
+            'calcium' => array('patterns' => array('/Calcium\s+(\d+(?:\.\d+)?)\s*mg/i')),
+            'iron' => array('patterns' => array('/Iron\s+(\d+(?:\.\d+)?)\s*mg/i')),
+            'potassium' => array('patterns' => array('/Potassium\s+(\d+(?:\.\d+)?)\s*mg/i')),
+        );
+        
+        // Parse each field
+        foreach ($field_mappings as $field_name => $config) {
+            foreach ($config['patterns'] as $pattern) {
+                if (preg_match($pattern, $text, $matches)) {
+                    $value = floatval($matches[1]);
+                    $parsed_data[$field_name] = $value;
+                    break; // Stop after first match
+                }
+            }
+        }
+        
+        return $parsed_data;
+    }
+    
 }
 
 // Initialize the plugin
