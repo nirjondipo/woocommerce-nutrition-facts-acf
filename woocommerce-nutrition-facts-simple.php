@@ -601,9 +601,13 @@ class WC_Nutrition_Facts_Simple {
         $molybdenum = get_field('molybdenum', $product_id);
         $chloride = get_field('chloride', $product_id);
 
-        // Check if we have any nutrition data
-        $has_nutrition_data = !empty($serving_size) || !empty($calories) || 
-                             !empty($total_fat) || !empty($sodium) || !empty($carbohydrate) || !empty($protein);
+        // Check if we have any nutrition data (including 0 values)
+        $has_nutrition_data = ($serving_size !== '' && $serving_size !== null) || 
+                             ($calories !== '' && $calories !== null) || 
+                             ($total_fat !== '' && $total_fat !== null) || 
+                             ($sodium !== '' && $sodium !== null) || 
+                             ($carbohydrate !== '' && $carbohydrate !== null) || 
+                             ($protein !== '' && $protein !== null);
 
         if (!$has_nutrition_data) {
             return ''; // Return empty string instead of message
@@ -659,7 +663,7 @@ class WC_Nutrition_Facts_Simple {
                     <h2 class="nt-title"><?php echo esc_html($nutrition_heading); ?></h2>
                 </li>
                 
-                <?php if (!empty($serving_per_container)): ?>
+                <?php if ($serving_per_container !== '' && $serving_per_container !== null): ?>
                     <li class="nt-row b-0 serving-per-cont">
                         <span class="nt-label col-100">
                             <?php printf(esc_html__('%s servings per container', 'wc-nutrition-simple'), esc_html($serving_per_container)); ?>
@@ -667,7 +671,7 @@ class WC_Nutrition_Facts_Simple {
                     </li>
                 <?php endif; ?>
                 
-                <?php if (!empty($serving_size)): ?>
+                <?php if ($serving_size !== '' && $serving_size !== null): ?>
                     <li class="nt-row sep-10 serving-size">
                         <span class="nt-label col-50"><?php esc_html_e('Serving Size', 'wc-nutrition-simple'); ?></span>
                         <span class="nt-value col-50" itemprop="servingSize"><?php echo esc_html($serving_size); ?></span>
@@ -678,7 +682,7 @@ class WC_Nutrition_Facts_Simple {
                     <span class="nt-label col-100"><?php esc_html_e('Amount per serving', 'wc-nutrition-simple'); ?></span>
                 </li>
                 
-                <?php if (!empty($calories)): ?>
+                <?php if ($calories !== '' && $calories !== null): ?>
                     <li class="nt-row font-bold calories sep-4">
                         <span class="nt-label col-<?php echo $show_daily_values ? '80' : '70'; ?>"><?php esc_html_e('Calories', 'wc-nutrition-simple'); ?></span>
                         <span class="nt-value col-<?php echo $show_daily_values ? '20' : '30'; ?>"><?php echo esc_html($calories); ?></span>
@@ -1069,7 +1073,7 @@ class WC_Nutrition_Facts_Simple {
                 // Render nutrition facts exactly like the original plugin
                 foreach($nutrition_facts as $nf) {
                     $field_value = get_field($nf['id'], $product_id);
-                    if (!empty($field_value)) {
+                    if ($field_value !== '' && $field_value !== null) {
                         $offset = $round_daily_values ? 0 : 2;
                         $dv = !empty($nf['sv']) ? round((float)$field_value * 100 / $nf['sv'], $offset) : '';
                         
@@ -1132,7 +1136,7 @@ class WC_Nutrition_Facts_Simple {
                 
                 foreach ($nutrition_fields as $field) {
                     $value = get_field($field, $product_id);
-                    if (!empty($value)) {
+                    if ($value !== '' && $value !== null) {
                         $classes[] = 'has-' . str_replace('_', '-', $field);
                     }
                 }
@@ -1148,7 +1152,7 @@ class WC_Nutrition_Facts_Simple {
         
         foreach ($basic_fields as $field) {
             $value = get_field($field, $product_id);
-            if (!empty($value)) {
+            if ($value !== '' && $value !== null) {
                 return true;
             }
         }
