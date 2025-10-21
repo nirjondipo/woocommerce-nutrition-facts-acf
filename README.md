@@ -7,6 +7,7 @@ A comprehensive WordPress plugin that adds nutrition facts fields to WooCommerce
 - **Plugin Name**: WooCommerce Nutrition Facts - Simple
 - **Version**: 1.0.0
 - **Author**: Md Solaiman
+- **Email**: nirjondipo@gmail.com
 - **Author URI**: https://www.upwork.com/freelancers/~01da2982e531013221
 - **Description**: Simple nutrition facts fields for WooCommerce products using ACF Free
 - **Requires**: WordPress 5.0+, WooCommerce 5.0+, ACF Free
@@ -27,82 +28,6 @@ A comprehensive WordPress plugin that adds nutrition facts fields to WooCommerce
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Ensure WooCommerce and ACF Free are installed and active
 
-## ACF Field Groups
-
-The plugin creates a field group called **"Nutrition Facts"** with the following fields:
-
-### Basic Information Fields
-
-| Field Key | Field Label | Field Type | Description |
-|-----------|-------------|------------|-------------|
-| `nutrition_heading` | Nutrition Table Heading | Text | Custom heading for the nutrition table (default: "Nutrition Facts") |
-| `serving_size` | Serving Size | Text | Serving size information (e.g., "1 Cookie(20g)") |
-| `serving_per_container` | Serving Per Container | Text | Number of servings per container (e.g., "30") |
-| `calories` | Calories per serving (cal) | Number | Calories per serving (without unit) |
-
-### Macronutrients Fields
-
-| Field Key | Field Label | Field Type | Standard DV | Unit |
-|-----------|-------------|------------|-------------|------|
-| `total_fat` | Total Fat | Number | 78g | g |
-| `saturated_fat` | Saturated Fat | Number | 20g | g |
-| `trans_fat` | Trans Fat | Number | - | g |
-| `polyunsaturated_fat` | Polyunsaturated Fat | Number | - | g |
-| `monounsaturated_fat` | Monounsaturated Fat | Number | - | g |
-| `cholesterol` | Cholesterol | Number | 300mg | mg |
-| `sodium` | Sodium | Number | 2300mg | mg |
-| `carbohydrate` | Total Carbohydrate | Number | 275g | g |
-| `fiber` | Dietary Fiber | Number | 28g | g |
-| `sugar` | Total Sugars | Number | - | g |
-| `added_sugar` | Added Sugars | Number | 50g | g |
-| `sugar_alcohol` | Sugar Alcohol | Number | - | g |
-| `protein` | Protein | Number | 50g | g |
-
-### Vitamin Fields
-
-| Field Key | Field Label | Field Type | Standard DV | Unit |
-|-----------|-------------|------------|-------------|------|
-| `vitamin_d` | Vitamin D (Cholecalciferol) | Number | 20mcg | mcg |
-| `vitamin_a` | Vitamin A | Number | 900mcg | mcg |
-| `vitamin_c` | Vitamin C (Ascorbic Acid) | Number | 90mg | mg |
-| `vitamin_e` | Vitamin E (Tocopherol) | Number | 15mg | mg |
-| `vitamin_k` | Vitamin K | Number | 120mcg | mcg |
-| `vitamin_b1` | Vitamin B1 (Thiamin) | Number | 1.2mg | mg |
-| `vitamin_b2` | Vitamin B2 (Riboflavin) | Number | 1.3mg | mg |
-| `vitamin_b3` | Vitamin B3 (Niacin) | Number | 16mg | mg |
-| `vitamin_b6` | Vitamin B6 (Pyridoxine) | Number | 1.7mg | mg |
-| `folate` | Folate | Number | 400mcg | mcg |
-| `vitamin_b12` | Vitamin B12 (Cobalamine) | Number | 2.4mcg | mcg |
-| `biotin` | Biotin | Number | 30mcg | mcg |
-| `vitamin_b5` | Vitamin B5 (Pantothenic acid) | Number | 5mg | mg |
-| `choline` | Choline | Number | 550mg | mg |
-
-### Mineral Fields
-
-| Field Key | Field Label | Field Type | Standard DV | Unit |
-|-----------|-------------|------------|-------------|------|
-| `calcium` | Calcium | Number | 1300mg | mg |
-| `iron` | Iron | Number | 18mg | mg |
-| `potassium` | Potassium | Number | 4700mg | mg |
-| `phosphorus` | Phosphorus | Number | 1250mg | mg |
-| `iodine` | Iodine | Number | 150mcg | mcg |
-| `magnesium` | Magnesium | Number | 420mg | mg |
-| `zinc` | Zinc | Number | 11mg | mg |
-| `selenium` | Selenium | Number | 55mcg | mcg |
-| `copper` | Copper | Number | 0.9mg | mg |
-| `manganese` | Manganese | Number | 2.3mg | mg |
-| `chromium` | Chromium | Number | 35mcg | mcg |
-| `molybdenum` | Molybdenum | Number | 45mcg | mcg |
-| `chloride` | Chloride | Number | 2300mg | mg |
-
-### Display Options
-
-| Field Key | Field Label | Field Type | Default | Description |
-|-----------|-------------|------------|---------|-------------|
-| `show_daily_values` | Show standard Daily Values | True/False | Yes | Enable/disable Standard DV column |
-| `round_daily_values` | Round off Daily Values | True/False | Yes | Round percentages to nearest integer |
-| `extra_notes` | Nutrition label extra notes | Textarea | Default FDA text | Additional notes displayed at bottom |
-
 ## Usage
 
 ### Shortcode
@@ -121,31 +46,6 @@ Use the shortcode to display nutrition facts anywhere:
 | `heading` | Custom heading | `[wc_nutrition_facts heading="Nutrition Information"]` |
 | `show_daily_values` | Show/hide Standard DV column | `[wc_nutrition_facts show_daily_values="true"]` |
 | `round_daily_values` | Round percentages | `[wc_nutrition_facts round_daily_values="false"]` |
-
-### PHP Usage
-
-Get nutrition data programmatically:
-
-```php
-// Get specific nutrition values
-$calories = get_field('calories', $product_id);
-$total_fat = get_field('total_fat', $product_id);
-$protein = get_field('protein', $product_id);
-
-// Get all nutrition data
-$nutrition_data = array(
-    'calories' => get_field('calories', $product_id),
-    'total_fat' => get_field('total_fat', $product_id),
-    'saturated_fat' => get_field('saturated_fat', $product_id),
-    'cholesterol' => get_field('cholesterol', $product_id),
-    'sodium' => get_field('sodium', $product_id),
-    'carbohydrate' => get_field('carbohydrate', $product_id),
-    'fiber' => get_field('fiber', $product_id),
-    'sugar' => get_field('sugar', $product_id),
-    'protein' => get_field('protein', $product_id),
-    // ... add more fields as needed
-);
-```
 
 ### Elementor Integration
 
@@ -214,6 +114,34 @@ The plugin includes an automatic field population feature that parses nutrition 
 1. **Add the `new_nutrition_info` field** to your ACF field group
 2. **Paste your nutrition data** into this field
 3. **Save the product** - plugin automatically populates all individual fields
+
+### When Automatic Parsing Works
+
+The plugin automatically parses nutrition data in these scenarios:
+
+#### ✅ **Product Updates:**
+- **Manual Updates**: When you save/update products in WordPress admin
+- **Bulk Updates**: When updating multiple products at once
+- **API Updates**: When products are updated via WooCommerce REST API
+- **AirTable Integration**: When AirTable updates products via WooCommerce API
+
+#### ✅ **Product Creation:**
+- **New Products**: When creating new products manually
+- **API Creation**: When products are created via WooCommerce REST API
+- **Bulk Imports**: When importing products from CSV or other sources
+- **AirTable Sync**: When AirTable creates new products
+
+#### ✅ **Data Changes:**
+- **Field Updates**: When `new_nutrition_info` field content changes
+- **Data Addition**: When nutrition data is added to empty field
+- **Data Removal**: When nutrition data is cleared from field
+- **Data Modification**: When existing nutrition data is updated
+
+#### ✅ **Integration Scenarios:**
+- **AirTable**: Perfect for bulk product management
+- **WooCommerce API**: Works with any API-based updates
+- **Import Tools**: Compatible with product import plugins
+- **Custom Integrations**: Works with any WordPress/WooCommerce hooks
 
 ### How Automatic Population Works
 
@@ -397,10 +325,33 @@ Total Fat 5 g 6% (with percentages)
 - ✅ **Clean data**: Automatically removes unwanted elements
 - ✅ **Time saving**: Reduces data entry time significantly
 
+### Technical Implementation
+
+The automatic parsing uses WordPress hooks to trigger on product saves:
+
+```php
+// WordPress hook that triggers on any post save
+add_action('acf/save_post', array($this, 'parse_nutrition_info_field'), 20);
+```
+
+#### **Process Flow:**
+1. **Trigger**: Product save/update occurs
+2. **Detection**: Plugin checks if `new_nutrition_info` has data
+3. **Parsing**: Plugin extracts nutrition values using regex patterns
+4. **Storage**: Parsed data stored in `_nutrition_parsed_data` post_meta
+5. **Display**: Frontend reads from post_meta for nutrition label
+
+#### **Supported Integrations:**
+- **AirTable**: ✅ Full compatibility with WooCommerce API
+- **WooCommerce REST API**: ✅ Works with any API-based updates
+- **Import Plugins**: ✅ Compatible with product import tools
+- **Custom Hooks**: ✅ Works with any WordPress/WooCommerce hooks
+
 ## Support
 
 For support and customization requests, contact:
 - **Author**: Md Solaiman
+- **Email**: nirjondipo@gmail.com
 - **Upwork Profile**: https://www.upwork.com/freelancers/~01da2982e531013221
 
 ## Changelog

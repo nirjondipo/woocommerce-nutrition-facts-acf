@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: WooCommerce Nutrition Facts - Simple
- * Plugin URI: https://github.com/nirjondipo/woocommerce-nutrition-facts-acf/
- * Description: Simple nutrition facts fields for WooCommerce products using ACF Free
+ * Plugin Name: WooCommerce Nutrition Facts ACF
+ * Plugin URI: https://github.com/your-username/woocommerce-nutrition-facts-acf
+ * Description: Add nutrition facts labels to WooCommerce products using ACF fields. Automatically parses nutrition data from a single field and populates individual fields.
  * Version: 1.0.0
  * Author: Md Solaiman
  * Author URI: https://www.upwork.com/freelancers/~01da2982e531013221
@@ -10,13 +10,13 @@
  * Domain Path: /languages
  * Requires at least: 5.0
  * Tested up to: 6.4
+ * Requires PHP: 7.4
  * WC requires at least: 5.0
- * WC tested up to: 8.0
+ * WC tested up to: 8.5
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  */
 
-// Exit if accessed directly
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -33,14 +33,12 @@ class WC_Nutrition_Facts_Simple {
 
     public function __construct() {
         add_action('init', array($this, 'init'));
-        add_action('acf/init', array($this, 'add_nutrition_fields')); // Use acf/init as recommended
         add_shortcode('wc_nutrition_facts', array($this, 'nutrition_facts_shortcode'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
         add_filter('body_class', array($this, 'add_nutrition_body_class'));
         
         // Add hook to parse new_nutrition_info field
         add_action('acf/save_post', array($this, 'parse_nutrition_info_field'), 20);
-        
     }
 
     public function init() {
@@ -64,506 +62,6 @@ class WC_Nutrition_Facts_Simple {
         echo '<div class="error"><p><strong>WooCommerce Nutrition Facts</strong> requires Advanced Custom Fields (ACF) to be installed and active.</p></div>';
     }
 
-    public function add_nutrition_fields() {
-        if (!function_exists('acf_add_local_field_group')) {
-            return;
-        }
-
-        acf_add_local_field_group(array(
-            'key' => 'group_nutrition_facts_simple',
-            'title' => 'Nutrition Facts',
-            'style' => 'seamless',
-            'label_placement' => 'top',
-            'instruction_placement' => 'label',
-            'hide_on_screen' => array('the_content', 'excerpt', 'discussion', 'comments', 'revisions', 'slug', 'author', 'format', 'page_attributes', 'featured_image', 'categories', 'tags', 'send-trackbacks'),
-            'fields' => array(
-                // Basic Information
-                array(
-                    'key' => 'field_nutrition_heading',
-                    'label' => 'Nutrition Table Heading',
-                    'name' => 'nutrition_heading',
-                    'type' => 'text',
-                    'default_value' => 'Nutrition Facts',
-                    'instructions' => 'Custom heading for the nutrition table',
-                ),
-                array(
-                    'key' => 'field_serving_size',
-                    'label' => 'Serving Size',
-                    'name' => 'serving_size',
-                    'type' => 'text',
-                    'disabled' => 1,
-                    'instructions' => 'Provide a serving size. E.g. 1 Cookie(20g), or 100g',
-                ),
-                array(
-                    'key' => 'field_serving_per_container',
-                    'label' => 'Serving Per Container',
-                    'name' => 'serving_per_container',
-                    'type' => 'text',
-                    'disabled' => 1,
-                    'instructions' => 'Provide serving per container. E.g. 30',
-                ),
-                array(
-                    'key' => 'field_calories',
-                    'label' => 'Calories per serving (cal)',
-                    'name' => 'calories',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'Provide approximate calories (without unit) per serving. E.g. 240',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-
-                // Macronutrients
-                array(
-                    'key' => 'field_total_fat',
-                    'label' => 'Total Fat',
-                    'name' => 'total_fat',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Total Fat (g), without unit. Standard daily value is 78 g',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_saturated_fat',
-                    'label' => 'Saturated Fat',
-                    'name' => 'saturated_fat',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Saturated Fat (g), without unit. Standard daily value is 20 g',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_trans_fat',
-                    'label' => 'Trans Fat',
-                    'name' => 'trans_fat',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Trans Fat (g), without unit.',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_polyunsaturated_fat',
-                    'label' => 'Polyunsaturated Fat',
-                    'name' => 'polyunsaturated_fat',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Polyunsaturated Fat (g), without unit.',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_monounsaturated_fat',
-                    'label' => 'Monounsaturated Fat',
-                    'name' => 'monounsaturated_fat',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Monounsaturated Fat (g), without unit.',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_cholesterol',
-                    'label' => 'Cholesterol',
-                    'name' => 'cholesterol',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Cholesterol (mg), without unit. Standard daily value is 300 mg',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_sodium',
-                    'label' => 'Sodium',
-                    'name' => 'sodium',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Sodium (mg), without unit. Standard daily value is 2300 mg',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_carbohydrate',
-                    'label' => 'Total Carbohydrate',
-                    'name' => 'carbohydrate',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Total Carbohydrate (g), without unit. Standard daily value is 275 g',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_fiber',
-                    'label' => 'Dietary Fiber',
-                    'name' => 'fiber',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Dietary Fiber (g), without unit. Standard daily value is 28 g',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_sugar',
-                    'label' => 'Total Sugars',
-                    'name' => 'sugar',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Total Sugars (g), without unit.',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_added_sugar',
-                    'label' => 'Added Sugars',
-                    'name' => 'added_sugar',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Added Sugars (g), without unit. Standard daily value is 50 g',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_sugar_alcohol',
-                    'label' => 'Sugar Alcohol',
-                    'name' => 'sugar_alcohol',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Sugar Alcohol (g), without unit.',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_protein',
-                    'label' => 'Protein',
-                    'name' => 'protein',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Protein (g), without unit. Standard daily value is 50 g',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-
-                // Vitamins
-                array(
-                    'key' => 'field_vitamin_d',
-                    'label' => 'Vitamin D (Cholecalciferol)',
-                    'name' => 'vitamin_d',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Vitamin D (Cholecalciferol) (IU), without unit. Standard daily value is 800 IU (International Units) or 20 mcg',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_vitamin_a',
-                    'label' => 'Vitamin A',
-                    'name' => 'vitamin_a',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Vitamin A (International Units), without unit. Standard daily value is 900 mcg',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_vitamin_c',
-                    'label' => 'Vitamin C (Ascorbic Acid)',
-                    'name' => 'vitamin_c',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Vitamin C (Ascorbic Acid) (mg), without unit. Standard daily value is 90 mg',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_vitamin_e',
-                    'label' => 'Vitamin E (Tocopherol)',
-                    'name' => 'vitamin_e',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Vitamin E (Tocopherol) (IU), without unit. Standard daily value is 33 IU or 15 mg',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_vitamin_k',
-                    'label' => 'Vitamin K',
-                    'name' => 'vitamin_k',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Vitamin K (mcg), without unit. Standard daily value is 120 mcg',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_vitamin_b1',
-                    'label' => 'Vitamin B1 (Thiamin)',
-                    'name' => 'vitamin_b1',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Vitamin B1 (Thiamin) (mg), without unit. Standard daily value is 1.2 mg',
-                    'min' => 0,
-                    'step' => 0.1,
-                ),
-                array(
-                    'key' => 'field_vitamin_b2',
-                    'label' => 'Vitamin B2 (Riboflavin)',
-                    'name' => 'vitamin_b2',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Vitamin B2 (Riboflavin) (mg), without unit. Standard daily value is 1.3 mg',
-                    'min' => 0,
-                    'step' => 0.1,
-                ),
-                array(
-                    'key' => 'field_vitamin_b3',
-                    'label' => 'Vitamin B3 (Niacin)',
-                    'name' => 'vitamin_b3',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Vitamin B3 (Niacin) (mg), without unit. Standard daily value is 16 mg',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_vitamin_b6',
-                    'label' => 'Vitamin B6 (Pyridoxine)',
-                    'name' => 'vitamin_b6',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Vitamin B6 (Pyridoxine) (mg), without unit. Standard daily value is 1.7 mg',
-                    'min' => 0,
-                    'step' => 0.1,
-                ),
-                array(
-                    'key' => 'field_folate',
-                    'label' => 'Folate',
-                    'name' => 'folate',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Folate (mcg), without unit. Standard daily value is 400 mcg',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_vitamin_b12',
-                    'label' => 'Vitamin B12 (Cobalamine)',
-                    'name' => 'vitamin_b12',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Vitamin B12 (Cobalamine) (mcg), without unit. Standard daily value is 2.4 mcg',
-                    'min' => 0,
-                    'step' => 0.1,
-                ),
-                array(
-                    'key' => 'field_biotin',
-                    'label' => 'Biotin',
-                    'name' => 'biotin',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Biotin (mcg), without unit. Standard daily value is 30 mcg',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_vitamin_b5',
-                    'label' => 'Vitamin B5 (Pantothenic acid)',
-                    'name' => 'vitamin_b5',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Vitamin B5 (Pantothenic acid) (mg), without unit. Standard daily value is 5 mg',
-                    'min' => 0,
-                    'step' => 0.1,
-                ),
-                array(
-                    'key' => 'field_choline',
-                    'label' => 'Choline',
-                    'name' => 'choline',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Choline (mg), without unit. Standard daily value is 550 mg',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-
-                // Minerals
-                array(
-                    'key' => 'field_calcium',
-                    'label' => 'Calcium',
-                    'name' => 'calcium',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Calcium (mg), without unit. Standard daily value is 1300 mg',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_iron',
-                    'label' => 'Iron',
-                    'name' => 'iron',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Iron (mg), without unit. Standard daily value is 18 mg',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_potassium',
-                    'label' => 'Potassium',
-                    'name' => 'potassium',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Potassium (mg), without unit. Standard daily value is 4700 mg',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_phosphorus',
-                    'label' => 'Phosphorus',
-                    'name' => 'phosphorus',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Phosphorus (mg), without unit. Standard daily value is 1250 mg',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_iodine',
-                    'label' => 'Iodine',
-                    'name' => 'iodine',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Iodine (mcg), without unit. Standard daily value is 150 mcg',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_magnesium',
-                    'label' => 'Magnesium',
-                    'name' => 'magnesium',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Magnesium (mg), without unit. Standard daily value is 420 mg',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_zinc',
-                    'label' => 'Zinc',
-                    'name' => 'zinc',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Zinc (mg), without unit. Standard daily value is 11 mg',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_selenium',
-                    'label' => 'Selenium',
-                    'name' => 'selenium',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Selenium (mcg), without unit. Standard daily value is 55 mcg',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_copper',
-                    'label' => 'Copper',
-                    'name' => 'copper',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Copper (mg), without unit. Standard daily value is 0.9 mg',
-                    'min' => 0,
-                    'step' => 0.1,
-                ),
-                array(
-                    'key' => 'field_manganese',
-                    'label' => 'Manganese',
-                    'name' => 'manganese',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Manganese (mg), without unit. Standard daily value is 2.3 mg',
-                    'min' => 0,
-                    'step' => 0.1,
-                ),
-                array(
-                    'key' => 'field_chromium',
-                    'label' => 'Chromium',
-                    'name' => 'chromium',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Chromium (mcg), without unit. Standard daily value is 35 mcg',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_molybdenum',
-                    'label' => 'Molybdenum',
-                    'name' => 'molybdenum',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Molybdenum (mcg), without unit. Standard daily value is 45 mcg',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_chloride',
-                    'label' => 'Chloride',
-                    'name' => 'chloride',
-                    'type' => 'number',
-                    'disabled' => 1,
-                    'instructions' => 'The amount of Chloride (mg), without unit. Standard daily value is 2300 mg',
-                    'min' => 0,
-                    'step' => 1,
-                ),
-
-                // Display Options
-                array(
-                    'key' => 'field_show_daily_values',
-                    'label' => 'Show standard Daily Values',
-                    'name' => 'show_daily_values',
-                    'type' => 'true_false',
-                    'instructions' => 'Enabling this option will show standard Daily Values in the chart.',
-                    'default_value' => 1,
-                    'ui' => 1,
-                ),
-                array(
-                    'key' => 'field_round_daily_values',
-                    'label' => 'Round off Daily Values',
-                    'name' => 'round_daily_values',
-                    'type' => 'true_false',
-                    'instructions' => 'Enabling this option will round off daily values to their nearest integer value.',
-                    'default_value' => 1,
-                    'ui' => 1,
-                ),
-                array(
-                    'key' => 'field_extra_notes',
-                    'label' => 'Nutrition label extra notes',
-                    'name' => 'extra_notes',
-                    'type' => 'textarea',
-                    'instructions' => 'Provide extra notes for the Nutrition table. This will be displayed at the end of table.',
-                    'default_value' => '* The % Daily Value (DV) tells you how much a nutrient in a serving of food contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.',
-                ),
-            ),
-            'location' => array(
-                array(
-                    array(
-                        'param' => 'post_type',
-                        'operator' => '==',
-                        'value' => 'product',
-                    ),
-                ),
-            ),
-            'menu_order' => 0,
-            'position' => 'normal',
-            'style' => 'default',
-            'label_placement' => 'top',
-            'instruction_placement' => 'label',
-        ));
-    }
-
     public function nutrition_facts_shortcode($atts) {
         $atts = shortcode_atts(array(
             'product_id' => '',
@@ -574,7 +72,6 @@ class WC_Nutrition_Facts_Simple {
 
         // Get product ID
         $product_id = '';
-        
         if (!empty($atts['product_id'])) {
             $product_id = intval($atts['product_id']);
         } elseif (is_product()) {
@@ -590,81 +87,19 @@ class WC_Nutrition_Facts_Simple {
             return '<p>Invalid product ID for nutrition facts.</p>';
         }
 
-        // Get nutrition data
-        $nutrition_heading = get_field('nutrition_heading', $product_id) ?: 'Nutrition Facts';
-        $serving_size = get_field('serving_size', $product_id);
-        $serving_per_container = get_field('serving_per_container', $product_id);
-        $calories = get_field('calories', $product_id);
-        $show_daily_values = get_field('show_daily_values', $product_id);
-        $round_daily_values = get_field('round_daily_values', $product_id);
-        $extra_notes = get_field('extra_notes', $product_id);
-
-        // Override with shortcode attributes if provided
-        if (!empty($atts['heading'])) {
-            $nutrition_heading = $atts['heading'];
-        }
-        if ($atts['show_daily_values'] !== '') {
-            $show_daily_values = filter_var($atts['show_daily_values'], FILTER_VALIDATE_BOOLEAN);
-        }
-        if ($atts['round_daily_values'] !== '') {
-            $round_daily_values = filter_var($atts['round_daily_values'], FILTER_VALIDATE_BOOLEAN);
+        // Get nutrition data from post_meta (parsed data)
+        $nutrition_data = get_post_meta($product_id, '_nutrition_parsed_data', true);
+        
+        if (empty($nutrition_data)) {
+            return ''; // Return empty string if no nutrition data
         }
 
-        // Get all nutrition fields
-        $total_fat = get_field('total_fat', $product_id);
-        $saturated_fat = get_field('saturated_fat', $product_id);
-        $trans_fat = get_field('trans_fat', $product_id);
-        $polyunsaturated_fat = get_field('polyunsaturated_fat', $product_id);
-        $monounsaturated_fat = get_field('monounsaturated_fat', $product_id);
-        $cholesterol = get_field('cholesterol', $product_id);
-        $sodium = get_field('sodium', $product_id);
-        $carbohydrate = get_field('carbohydrate', $product_id);
-        $fiber = get_field('fiber', $product_id);
-        $sugar = get_field('sugar', $product_id);
-        $added_sugar = get_field('added_sugar', $product_id);
-        $sugar_alcohol = get_field('sugar_alcohol', $product_id);
-        $protein = get_field('protein', $product_id);
-        $vitamin_d = get_field('vitamin_d', $product_id);
-        $vitamin_a = get_field('vitamin_a', $product_id);
-        $vitamin_c = get_field('vitamin_c', $product_id);
-        $vitamin_e = get_field('vitamin_e', $product_id);
-        $vitamin_k = get_field('vitamin_k', $product_id);
-        $vitamin_b1 = get_field('vitamin_b1', $product_id);
-        $vitamin_b2 = get_field('vitamin_b2', $product_id);
-        $vitamin_b3 = get_field('vitamin_b3', $product_id);
-        $vitamin_b6 = get_field('vitamin_b6', $product_id);
-        $folate = get_field('folate', $product_id);
-        $vitamin_b12 = get_field('vitamin_b12', $product_id);
-        $biotin = get_field('biotin', $product_id);
-        $vitamin_b5 = get_field('vitamin_b5', $product_id);
-        $choline = get_field('choline', $product_id);
-        $calcium = get_field('calcium', $product_id);
-        $iron = get_field('iron', $product_id);
-        $potassium = get_field('potassium', $product_id);
-        $phosphorus = get_field('phosphorus', $product_id);
-        $iodine = get_field('iodine', $product_id);
-        $magnesium = get_field('magnesium', $product_id);
-        $zinc = get_field('zinc', $product_id);
-        $selenium = get_field('selenium', $product_id);
-        $copper = get_field('copper', $product_id);
-        $manganese = get_field('manganese', $product_id);
-        $chromium = get_field('chromium', $product_id);
-        $molybdenum = get_field('molybdenum', $product_id);
-        $chloride = get_field('chloride', $product_id);
+        // Get display options
+        $nutrition_heading = !empty($atts['heading']) ? $atts['heading'] : 'Nutrition Facts';
+        $show_daily_values = $atts['show_daily_values'] !== '' ? filter_var($atts['show_daily_values'], FILTER_VALIDATE_BOOLEAN) : true;
+        $round_daily_values = $atts['round_daily_values'] !== '' ? filter_var($atts['round_daily_values'], FILTER_VALIDATE_BOOLEAN) : true;
 
-        // Check if we have any nutrition data (including 0 values)
-        // Don't require serving_size or serving_per_container for basic nutrition data
-        $has_nutrition_data = ($calories !== '' && $calories !== null) || 
-                             ($total_fat !== '' && $total_fat !== null) || 
-                             ($sodium !== '' && $sodium !== null) || 
-                             ($carbohydrate !== '' && $carbohydrate !== null) || 
-                             ($protein !== '' && $protein !== null);
-
-        if (!$has_nutrition_data) {
-            return ''; // Return empty string instead of message
-        }
-
-        // Standard Daily Values (same as original plugin)
+        // Standard Daily Values
         $standard_daily_values = array(
             'total_fat' => 78,
             'saturated_fat' => 20,
@@ -678,32 +113,7 @@ class WC_Nutrition_Facts_Simple {
             'calcium' => 1300,
             'iron' => 18,
             'potassium' => 4700,
-            'vitamin_a' => 900,
-            'vitamin_c' => 90,
-            'vitamin_e' => 15,
-            'vitamin_k' => 120,
-            'vitamin_b1' => 1.2,
-            'vitamin_b2' => 1.3,
-            'vitamin_b3' => 16,
-            'vitamin_b6' => 1.7,
-            'folate' => 400,
-            'vitamin_b12' => 2.4,
-            'biotin' => 30,
-            'vitamin_b5' => 5,
-            'choline' => 550,
-            'phosphorus' => 1250,
-            'iodine' => 150,
-            'magnesium' => 420,
-            'zinc' => 11,
-            'selenium' => 55,
-            'copper' => 0.9,
-            'manganese' => 2.3,
-            'chromium' => 35,
-            'molybdenum' => 45,
-            'chloride' => 2300,
         );
-
-        // Calculate daily value percentage will be done inline
 
         // Start output
         ob_start();
@@ -714,32 +124,32 @@ class WC_Nutrition_Facts_Simple {
                     <h2 class="nt-title"><?php echo esc_html($nutrition_heading); ?></h2>
                 </li>
                 
-                <?php if ($serving_per_container !== '' && $serving_per_container !== null): ?>
+                <?php if (!empty($nutrition_data['serving_per_container'])): ?>
                     <li class="nt-row b-0 serving-per-cont">
                         <span class="nt-label col-100">
-                            <?php printf(esc_html__('%s servings per container', 'wc-nutrition-simple'), esc_html($serving_per_container)); ?>
+                            <?php printf(esc_html__('%s servings per container', 'wc-nutrition-simple'), esc_html($nutrition_data['serving_per_container'])); ?>
                         </span>
                     </li>
                 <?php endif; ?>
                 
-                <?php if ($serving_size !== '' && $serving_size !== null): ?>
+                <?php if (!empty($nutrition_data['serving_size'])): ?>
                     <li class="nt-row sep-10 serving-size">
                         <span class="nt-label col-50"><?php esc_html_e('Serving Size', 'wc-nutrition-simple'); ?></span>
-                        <span class="nt-value col-50" itemprop="servingSize"><?php echo esc_html($serving_size); ?></span>
+                        <span class="nt-value col-50" itemprop="servingSize"><?php echo esc_html($nutrition_data['serving_size']); ?></span>
                     </li>
                 <?php endif; ?>
                 
-                <?php if ($serving_size !== '' && $serving_size !== null): ?>
+                <?php if (!empty($nutrition_data['serving_size'])): ?>
                     <li class="nt-row b-0 font-bold amount-per-serving sep-1">
                         <span class="nt-label col-100"><?php esc_html_e('Amount per serving', 'wc-nutrition-simple'); ?></span>
                     </li>
                 <?php endif; ?>
                 
-                <?php if ($calories !== '' && $calories !== null): ?>
+                <?php if (!empty($nutrition_data['calories'])): ?>
                     <li class="nt-row font-bold calories sep-4">
                         <span class="nt-label col-<?php echo $show_daily_values ? '80' : '70'; ?>"><?php esc_html_e('Calories', 'wc-nutrition-simple'); ?></span>
-                        <span class="nt-value col-<?php echo $show_daily_values ? '20' : '30'; ?>"><?php echo esc_html($calories); ?></span>
-                        <meta itemprop="calories" content="<?php echo esc_attr($calories); ?>">
+                        <span class="nt-value col-<?php echo $show_daily_values ? '20' : '30'; ?>"><?php echo esc_html($nutrition_data['calories']); ?></span>
+                        <meta itemprop="calories" content="<?php echo esc_attr($nutrition_data['calories']); ?>">
                     </li>
                 <?php endif; ?>
                 
@@ -759,7 +169,7 @@ class WC_Nutrition_Facts_Simple {
                 <?php endif; ?>
                 
                 <?php
-                // Create nutrition facts array exactly like the original plugin
+                // Create nutrition facts array
                 $nutrition_facts = array(
                     array(
                         'id' => 'total_fat',
@@ -767,7 +177,7 @@ class WC_Nutrition_Facts_Simple {
                         'schema' => 'fatContent',
                         'liclass' => false,
                         'labelclass' => 'font-bold',
-                        'sv' => 78,
+                        'sv' => $standard_daily_values['total_fat'],
                         'unit' => 'g'
                     ),
                     array(
@@ -775,8 +185,8 @@ class WC_Nutrition_Facts_Simple {
                         'label' => __('Saturated Fat', 'wc-nutrition-simple'),
                         'schema' => 'saturatedFatContent',
                         'liclass' => 'nt-sublevel-1',
-                        'labelclass' => false,
-                        'sv' => 20,
+                        'labelclass' => '',
+                        'sv' => $standard_daily_values['saturated_fat'],
                         'unit' => 'g'
                     ),
                     array(
@@ -784,53 +194,35 @@ class WC_Nutrition_Facts_Simple {
                         'label' => __('Trans Fat', 'wc-nutrition-simple'),
                         'schema' => 'transFatContent',
                         'liclass' => 'nt-sublevel-1',
-                        'labelclass' => false,
-                        'sv' => false,
-                        'unit' => 'g'
-                    ),
-                    array(
-                        'id' => 'polyunsaturated_fat',
-                        'label' => __('Polyunsaturated Fat', 'wc-nutrition-simple'),
-                        'schema' => 'unsaturatedFatContent',
-                        'liclass' => 'nt-sublevel-1',
-                        'labelclass' => false,
-                        'sv' => false,
-                        'unit' => 'g'
-                    ),
-                    array(
-                        'id' => 'monounsaturated_fat',
-                        'label' => __('Monounsaturated Fat', 'wc-nutrition-simple'),
-                        'schema' => 'unsaturatedFatContent',
-                        'liclass' => 'nt-sublevel-1',
-                        'labelclass' => false,
-                        'sv' => false,
+                        'labelclass' => '',
+                        'sv' => '',
                         'unit' => 'g'
                     ),
                     array(
                         'id' => 'cholesterol',
                         'label' => __('Cholesterol', 'wc-nutrition-simple'),
                         'schema' => 'cholesterolContent',
-                        'liclass' => '',
-                        'labelclass' => 'font-bold',
-                        'sv' => 300,
+                        'liclass' => false,
+                        'labelclass' => '',
+                        'sv' => $standard_daily_values['cholesterol'],
                         'unit' => 'mg'
                     ),
                     array(
                         'id' => 'sodium',
                         'label' => __('Sodium', 'wc-nutrition-simple'),
                         'schema' => 'sodiumContent',
-                        'liclass' => '',
-                        'labelclass' => 'font-bold',
-                        'sv' => 2300,
+                        'liclass' => false,
+                        'labelclass' => '',
+                        'sv' => $standard_daily_values['sodium'],
                         'unit' => 'mg'
                     ),
                     array(
                         'id' => 'carbohydrate',
                         'label' => __('Total Carbohydrate', 'wc-nutrition-simple'),
                         'schema' => 'carbohydrateContent',
-                        'liclass' => '',
+                        'liclass' => false,
                         'labelclass' => 'font-bold',
-                        'sv' => 275,
+                        'sv' => $standard_daily_values['carbohydrate'],
                         'unit' => 'g'
                     ),
                     array(
@@ -839,7 +231,7 @@ class WC_Nutrition_Facts_Simple {
                         'schema' => 'fiberContent',
                         'liclass' => 'nt-sublevel-1',
                         'labelclass' => '',
-                        'sv' => 28,
+                        'sv' => $standard_daily_values['fiber'],
                         'unit' => 'g'
                     ),
                     array(
@@ -848,285 +240,269 @@ class WC_Nutrition_Facts_Simple {
                         'schema' => 'sugarContent',
                         'liclass' => 'nt-sublevel-1',
                         'labelclass' => '',
-                        'sv' => false,
+                        'sv' => '',
                         'unit' => 'g'
                     ),
                     array(
-                        'id' => 'added_sugar',
+                        'id' => 'added_sugars',
                         'label' => __('Added Sugars', 'wc-nutrition-simple'),
-                        'schema' => false,
+                        'schema' => 'sugarContent',
                         'liclass' => 'nt-sublevel-2',
                         'labelclass' => '',
-                        'sv' => 50,
-                        'unit' => 'g'
-                    ),
-                    array(
-                        'id' => 'sugar_alcohol',
-                        'label' => __('Sugar Alcohol', 'wc-nutrition-simple'),
-                        'schema' => false,
-                        'liclass' => 'nt-sublevel-1',
-                        'labelclass' => '',
-                        'sv' => false,
+                        'sv' => $standard_daily_values['added_sugar'],
                         'unit' => 'g'
                     ),
                     array(
                         'id' => 'protein',
                         'label' => __('Protein', 'wc-nutrition-simple'),
                         'schema' => 'proteinContent',
-                        'liclass' => 'nt-sep sep-8',
+                        'liclass' => false,
                         'labelclass' => 'font-bold',
-                        'sv' => 50,
+                        'sv' => $standard_daily_values['protein'],
                         'unit' => 'g'
                     ),
+                    // Vitamins
                     array(
                         'id' => 'vitamin_d',
                         'label' => __('Vitamin D (Cholecalciferol)', 'wc-nutrition-simple'),
-                        'schema' => false,
+                        'schema' => 'vitaminD',
                         'liclass' => false,
-                        'labelclass' => false,
-                        'sv' => 20,
+                        'labelclass' => '',
+                        'sv' => $standard_daily_values['vitamin_d'],
                         'unit' => 'mcg'
-                    ),
-                    array(
-                        'id' => 'calcium',
-                        'label' => __('Calcium', 'wc-nutrition-simple'),
-                        'schema' => false,
-                        'liclass' => false,
-                        'labelclass' => false,
-                        'sv' => 1300,
-                        'unit' => 'mg'
-                    ),
-                    array(
-                        'id' => 'iron',
-                        'label' => __('Iron', 'wc-nutrition-simple'),
-                        'schema' => false,
-                        'liclass' => false,
-                        'labelclass' => false,
-                        'sv' => 18,
-                        'unit' => 'mg'
-                    ),
-                    array(
-                        'id' => 'potassium',
-                        'label' => __('Potassium', 'wc-nutrition-simple'),
-                        'schema' => false,
-                        'liclass' => false,
-                        'labelclass' => false,
-                        'sv' => 4700,
-                        'unit' => 'mg'
                     ),
                     array(
                         'id' => 'vitamin_a',
                         'label' => __('Vitamin A', 'wc-nutrition-simple'),
-                        'schema' => false,
+                        'schema' => 'vitaminA',
                         'liclass' => false,
-                        'labelclass' => false,
+                        'labelclass' => '',
                         'sv' => 900,
-                        'unit' => 'mcg'
+                        'unit' => 'IU'
                     ),
                     array(
                         'id' => 'vitamin_c',
-                        'label' => __('Vitamin C (Ascorbic Acid)', 'wc-nutrition-simple'),
-                        'schema' => false,
+                        'label' => __('Vitamin C', 'wc-nutrition-simple'),
+                        'schema' => 'vitaminC',
                         'liclass' => false,
-                        'labelclass' => false,
+                        'labelclass' => '',
                         'sv' => 90,
                         'unit' => 'mg'
                     ),
                     array(
                         'id' => 'vitamin_e',
-                        'label' => __('Vitamin E (Tocopherol)', 'wc-nutrition-simple'),
-                        'schema' => false,
+                        'label' => __('Vitamin E', 'wc-nutrition-simple'),
+                        'schema' => 'vitaminE',
                         'liclass' => false,
-                        'labelclass' => false,
+                        'labelclass' => '',
                         'sv' => 15,
-                        'unit' => 'mg'
+                        'unit' => 'IU'
                     ),
                     array(
                         'id' => 'vitamin_k',
                         'label' => __('Vitamin K', 'wc-nutrition-simple'),
-                        'schema' => false,
+                        'schema' => 'vitaminK',
                         'liclass' => false,
-                        'labelclass' => false,
+                        'labelclass' => '',
                         'sv' => 120,
                         'unit' => 'mcg'
                     ),
                     array(
                         'id' => 'vitamin_b1',
                         'label' => __('Vitamin B1 (Thiamin)', 'wc-nutrition-simple'),
-                        'schema' => false,
+                        'schema' => 'vitaminB1',
                         'liclass' => false,
-                        'labelclass' => false,
+                        'labelclass' => '',
                         'sv' => 1.2,
                         'unit' => 'mg'
                     ),
                     array(
                         'id' => 'vitamin_b2',
                         'label' => __('Vitamin B2 (Riboflavin)', 'wc-nutrition-simple'),
-                        'schema' => false,
+                        'schema' => 'vitaminB2',
                         'liclass' => false,
-                        'labelclass' => false,
+                        'labelclass' => '',
                         'sv' => 1.3,
                         'unit' => 'mg'
                     ),
                     array(
                         'id' => 'vitamin_b3',
                         'label' => __('Vitamin B3 (Niacin)', 'wc-nutrition-simple'),
-                        'schema' => false,
+                        'schema' => 'vitaminB3',
                         'liclass' => false,
-                        'labelclass' => false,
+                        'labelclass' => '',
                         'sv' => 16,
                         'unit' => 'mg'
                     ),
                     array(
-                        'id' => 'vitamin_b6',
-                        'label' => __('Vitamin B6 (Pyridoxine)', 'wc-nutrition-simple'),
-                        'schema' => false,
+                        'id' => 'vitamin_b5',
+                        'label' => __('Vitamin B5 (Pantothenic Acid)', 'wc-nutrition-simple'),
+                        'schema' => 'vitaminB5',
                         'liclass' => false,
-                        'labelclass' => false,
+                        'labelclass' => '',
+                        'sv' => 5,
+                        'unit' => 'mg'
+                    ),
+                    array(
+                        'id' => 'vitamin_b6',
+                        'label' => __('Vitamin B6', 'wc-nutrition-simple'),
+                        'schema' => 'vitaminB6',
+                        'liclass' => false,
+                        'labelclass' => '',
                         'sv' => 1.7,
                         'unit' => 'mg'
                     ),
                     array(
-                        'id' => 'folate',
-                        'label' => __('Folate', 'wc-nutrition-simple'),
-                        'schema' => false,
+                        'id' => 'vitamin_b12',
+                        'label' => __('Vitamin B12', 'wc-nutrition-simple'),
+                        'schema' => 'vitaminB12',
                         'liclass' => false,
-                        'labelclass' => false,
-                        'sv' => 400,
+                        'labelclass' => '',
+                        'sv' => 2.4,
                         'unit' => 'mcg'
                     ),
                     array(
-                        'id' => 'vitamin_b12',
-                        'label' => __('Vitamin B12 (Cobalamine)', 'wc-nutrition-simple'),
-                        'schema' => false,
+                        'id' => 'folate',
+                        'label' => __('Folate', 'wc-nutrition-simple'),
+                        'schema' => 'folate',
                         'liclass' => false,
-                        'labelclass' => false,
-                        'sv' => 2.4,
+                        'labelclass' => '',
+                        'sv' => 400,
                         'unit' => 'mcg'
                     ),
                     array(
                         'id' => 'biotin',
                         'label' => __('Biotin', 'wc-nutrition-simple'),
-                        'schema' => false,
+                        'schema' => 'biotin',
                         'liclass' => false,
-                        'labelclass' => false,
+                        'labelclass' => '',
                         'sv' => 30,
                         'unit' => 'mcg'
                     ),
                     array(
-                        'id' => 'vitamin_b5',
-                        'label' => __('Vitamin B5 (Pantothenic acid)', 'wc-nutrition-simple'),
-                        'schema' => false,
+                        'id' => 'choline',
+                        'label' => __('Choline', 'wc-nutrition-simple'),
+                        'schema' => 'choline',
                         'liclass' => false,
-                        'labelclass' => false,
-                        'sv' => 5,
+                        'labelclass' => '',
+                        'sv' => 550,
+                        'unit' => 'mg'
+                    ),
+                    // Minerals
+                    array(
+                        'id' => 'calcium',
+                        'label' => __('Calcium', 'wc-nutrition-simple'),
+                        'schema' => 'calcium',
+                        'liclass' => false,
+                        'labelclass' => '',
+                        'sv' => $standard_daily_values['calcium'],
                         'unit' => 'mg'
                     ),
                     array(
-                        'id' => 'choline',
-                        'label' => __('Choline', 'wc-nutrition-simple'),
-                        'schema' => false,
+                        'id' => 'iron',
+                        'label' => __('Iron', 'wc-nutrition-simple'),
+                        'schema' => 'iron',
                         'liclass' => false,
-                        'labelclass' => false,
-                        'sv' => 550,
+                        'labelclass' => '',
+                        'sv' => $standard_daily_values['iron'],
+                        'unit' => 'mg'
+                    ),
+                    array(
+                        'id' => 'potassium',
+                        'label' => __('Potassium', 'wc-nutrition-simple'),
+                        'schema' => 'potassium',
+                        'liclass' => false,
+                        'labelclass' => '',
+                        'sv' => $standard_daily_values['potassium'],
                         'unit' => 'mg'
                     ),
                     array(
                         'id' => 'phosphorus',
                         'label' => __('Phosphorus', 'wc-nutrition-simple'),
-                        'schema' => false,
+                        'schema' => 'phosphorus',
                         'liclass' => false,
-                        'labelclass' => false,
+                        'labelclass' => '',
                         'sv' => 1250,
                         'unit' => 'mg'
                     ),
                     array(
-                        'id' => 'iodine',
-                        'label' => __('Iodine', 'wc-nutrition-simple'),
-                        'schema' => false,
-                        'liclass' => false,
-                        'labelclass' => false,
-                        'sv' => 150,
-                        'unit' => 'mcg'
-                    ),
-                    array(
                         'id' => 'magnesium',
                         'label' => __('Magnesium', 'wc-nutrition-simple'),
-                        'schema' => false,
+                        'schema' => 'magnesium',
                         'liclass' => false,
-                        'labelclass' => false,
+                        'labelclass' => '',
                         'sv' => 420,
                         'unit' => 'mg'
                     ),
                     array(
                         'id' => 'zinc',
                         'label' => __('Zinc', 'wc-nutrition-simple'),
-                        'schema' => false,
+                        'schema' => 'zinc',
                         'liclass' => false,
-                        'labelclass' => false,
+                        'labelclass' => '',
                         'sv' => 11,
                         'unit' => 'mg'
                     ),
                     array(
                         'id' => 'selenium',
                         'label' => __('Selenium', 'wc-nutrition-simple'),
-                        'schema' => false,
+                        'schema' => 'selenium',
                         'liclass' => false,
-                        'labelclass' => false,
+                        'labelclass' => '',
                         'sv' => 55,
                         'unit' => 'mcg'
                     ),
                     array(
                         'id' => 'copper',
                         'label' => __('Copper', 'wc-nutrition-simple'),
-                        'schema' => false,
+                        'schema' => 'copper',
                         'liclass' => false,
-                        'labelclass' => false,
+                        'labelclass' => '',
                         'sv' => 0.9,
                         'unit' => 'mg'
                     ),
                     array(
                         'id' => 'manganese',
                         'label' => __('Manganese', 'wc-nutrition-simple'),
-                        'schema' => false,
+                        'schema' => 'manganese',
                         'liclass' => false,
-                        'labelclass' => false,
+                        'labelclass' => '',
                         'sv' => 2.3,
                         'unit' => 'mg'
                     ),
                     array(
                         'id' => 'chromium',
                         'label' => __('Chromium', 'wc-nutrition-simple'),
-                        'schema' => false,
+                        'schema' => 'chromium',
                         'liclass' => false,
-                        'labelclass' => false,
+                        'labelclass' => '',
                         'sv' => 35,
                         'unit' => 'mcg'
                     ),
                     array(
                         'id' => 'molybdenum',
                         'label' => __('Molybdenum', 'wc-nutrition-simple'),
-                        'schema' => false,
+                        'schema' => 'molybdenum',
                         'liclass' => false,
-                        'labelclass' => false,
+                        'labelclass' => '',
                         'sv' => 45,
                         'unit' => 'mcg'
                     ),
                     array(
                         'id' => 'chloride',
                         'label' => __('Chloride', 'wc-nutrition-simple'),
-                        'schema' => false,
+                        'schema' => 'chloride',
                         'liclass' => false,
-                        'labelclass' => false,
+                        'labelclass' => '',
                         'sv' => 2300,
                         'unit' => 'mg'
-                    )
+                    ),
                 );
 
-                // Render nutrition facts exactly like the original plugin
+                // Render nutrition facts
                 foreach($nutrition_facts as $nf) {
-                    $field_value = get_field($nf['id'], $product_id);
-                    if ($field_value !== '' && $field_value !== null) {
+                    if (!empty($nutrition_data[$nf['id']])) {
+                        $field_value = $nutrition_data[$nf['id']];
                         $offset = $round_daily_values ? 0 : 2;
                         $dv = !empty($nf['sv']) ? round((float)$field_value * 100 / $nf['sv'], $offset) : '';
                         
@@ -1137,80 +513,47 @@ class WC_Nutrition_Facts_Simple {
                         }
 
                         printf($format,
-                            $nf['liclass'] ? ' class="' . esc_attr($nf['liclass']) . '"' : '',
-                            $nf['labelclass'] ? ' ' . esc_attr($nf['labelclass']) : '',
-                            esc_attr($nf['label']),
-                            $nf['schema'] ? ' itemprop="' . esc_attr($nf['schema']) . '"' : '',
-                            $field_value . ' ' . $nf['unit'],
-                            !empty($nf['sv']) ? sprintf('<span class="nt-sdv col-20">%s</span>', $nf['sv'] . ' ' . $nf['unit']) : '',
-                            !empty($nf['sv']) ? sprintf('<span class="nt-value col-%s">%s</span>',
-                                $show_daily_values ? '20' : '30',
-                                (int)$dv <= 100 ? $dv . '%' : '<b>' . $dv . '%</b>'
-                            ) : ''
+                            !empty($nf['liclass']) ? ' class="' . esc_attr($nf['liclass']) . '"' : '',
+                            !empty($nf['labelclass']) ? ' ' . esc_attr($nf['labelclass']) : '',
+                            esc_html($nf['label']),
+                            !empty($nf['schema']) ? ' itemprop="' . esc_attr($nf['schema']) . '"' : '',
+                            esc_html($field_value . $nf['unit']),
+                            $show_daily_values && !empty($nf['sv']) ? '<span class="nt-amount col-20">' . esc_html($nf['sv'] . $nf['unit']) . '</span>' : '',
+                            !empty($dv) ? '<span class="nt-amount col-20">' . esc_html($dv . '%') . '</span>' : ''
                         );
                     }
                 }
                 ?>
                 
-                <?php if (!empty($extra_notes)): ?>
-                    <li class="nt-footer b-0"><?php echo wp_kses_post($extra_notes); ?></li>
-                <?php endif; ?>
-            </ul><!-- /.nutrition-table -->
-        </div><!-- /.nutrition-section -->
+                <li class="nt-sep sep-8"></li>
+                <li class="nt-footer b-0">
+                    <span class="nt-label col-100"><?php esc_html_e('* The % Daily Value (DV) tells you how much a nutrient in a serving of food contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.', 'wc-nutrition-simple'); ?></span>
+                </li>
+            </ul>
+        </div>
         <?php
         
         return ob_get_clean();
     }
 
     public function add_nutrition_body_class($classes) {
-        // Only add classes on single product pages
         if (is_product()) {
             global $post;
-            
-            if ($post && $post->post_type === 'product') {
+            if ($post) {
                 $product_id = $post->ID;
+                $nutrition_data = get_post_meta($product_id, '_nutrition_parsed_data', true);
                 
-                // Check if product has nutrition data
-                $has_nutrition = $this->check_nutrition_data($product_id);
-                
-                if ($has_nutrition) {
+                if (!empty($nutrition_data)) {
                     $classes[] = 'has-nutrition-facts';
                     $classes[] = 'nutrition-data-available';
                 } else {
                     $classes[] = 'no-nutrition-facts';
                     $classes[] = 'nutrition-data-unavailable';
                 }
-                
-                // Add specific nutrition data classes
-                $nutrition_fields = array(
-                    'calories', 'total_fat', 'saturated_fat', 'cholesterol', 'sodium',
-                    'carbohydrate', 'fiber', 'sugar', 'protein', 'vitamin_d', 'calcium', 'iron'
-                );
-                
-                foreach ($nutrition_fields as $field) {
-                    $value = get_field($field, $product_id);
-                    if ($value !== '' && $value !== null) {
-                        $classes[] = 'has-' . str_replace('_', '-', $field);
-                    }
-                }
             }
         }
         
         return $classes;
-    }
-    
-    private function check_nutrition_data($product_id) {
-        // Check for basic nutrition data
-        $basic_fields = array('calories', 'total_fat', 'sodium', 'carbohydrate', 'protein');
-        
-        foreach ($basic_fields as $field) {
-            $value = get_field($field, $product_id);
-            if ($value !== '' && $value !== null) {
-                return true;
-            }
-        }
-        
-        return false;
     }
 
     private function calculate_daily_value($amount, $standard_value, $round = false) {
@@ -1222,7 +565,7 @@ class WC_Nutrition_Facts_Simple {
     }
 
     public function enqueue_scripts() {
-        // Only load CSS on product pages and where shortcode is used
+        // Only load CSS on product pages
         if (is_product()) {
             wp_enqueue_style(
                 'wc-nutrition-simple-style',
@@ -1245,38 +588,20 @@ class WC_Nutrition_Facts_Simple {
         // Get the new_nutrition_info field value
         $nutrition_info = get_field('new_nutrition_info', $post_id);
         
-        // Define all nutrition fields that should be cleared if no source data
-        $all_nutrition_fields = array(
-            'serving_size', 'serving_per_container', 'calories', 'total_fat', 'saturated_fat', 
-            'trans_fat', 'cholesterol', 'sodium', 'carbohydrate', 'fiber', 'sugar', 
-            'added_sugars', 'protein', 'vitamin_d', 'calcium', 'iron', 'potassium',
-            'vitamin_a', 'vitamin_c', 'vitamin_e', 'vitamin_k', 'vitamin_b1', 'vitamin_b2',
-            'vitamin_b3', 'vitamin_b5', 'vitamin_b6', 'vitamin_b12', 'folate', 'biotin',
-            'choline', 'phosphorus', 'magnesium', 'zinc', 'selenium', 'copper',
-            'manganese', 'chromium', 'molybdenum', 'chloride'
-        );
-        
         if (empty($nutrition_info)) {
-            // Clear all nutrition fields if no source data
-            foreach ($all_nutrition_fields as $field_name) {
-                update_field($field_name, '', $post_id);
-            }
+            // Clear nutrition data if no source data
+            delete_post_meta($post_id, '_nutrition_parsed_data');
             return;
         }
         
         // Parse the nutrition data
         $parsed_data = $this->parse_nutrition_text($nutrition_info);
         
-        // Clear all fields first
-        foreach ($all_nutrition_fields as $field_name) {
-            update_field($field_name, '', $post_id);
-        }
-        
-        // Update individual ACF fields with parsed data
+        // Store parsed data in post_meta
         if (!empty($parsed_data)) {
-            foreach ($parsed_data as $field_name => $value) {
-                update_field($field_name, $value, $post_id);
-            }
+            update_post_meta($post_id, '_nutrition_parsed_data', $parsed_data);
+        } else {
+            delete_post_meta($post_id, '_nutrition_parsed_data');
         }
     }
     
@@ -1349,35 +674,26 @@ class WC_Nutrition_Facts_Simple {
             'protein' => array('patterns' => array(
                 '/Protein\s+(\d+(?:\.\d+)?)\s*g/i'
             )),
+            // Vitamins
             'vitamin_d' => array('patterns' => array(
-                '/Vitamin D\s+(\d+(?:\.\d+)?)\s*(?:mcg|μg)/i',
-                '/Vitamin\s+D\s+(\d+(?:\.\d+)?)\s*(?:mcg|μg)/i'
-            )),
-            'calcium' => array('patterns' => array(
-                '/Calcium\s+(\d+(?:\.\d+)?)\s*mg/i'
-            )),
-            'iron' => array('patterns' => array(
-                '/Iron\s+(\d+(?:\.\d+)?)\s*mg/i'
-            )),
-            'potassium' => array('patterns' => array(
-                '/Potassium\s+(\d+(?:\.\d+)?)\s*mg/i',
-                '/Potasium\s+(\d+(?:\.\d+)?)\s*mg/i'
+                '/Vitamin D\s+(\d+(?:\.\d+)?)\s*mcg/i',
+                '/Vitamin\s+D\s+(\d+(?:\.\d+)?)\s*mcg/i'
             )),
             'vitamin_a' => array('patterns' => array(
-                '/Vitamin A\s+(\d+(?:\.\d+)?)\s*(?:IU|mcg)/i',
-                '/Vitamin\s+A\s+(\d+(?:\.\d+)?)\s*(?:IU|mcg)/i'
+                '/Vitamin A\s+(\d+(?:\.\d+)?)\s*IU/i',
+                '/Vitamin\s+A\s+(\d+(?:\.\d+)?)\s*IU/i'
             )),
             'vitamin_c' => array('patterns' => array(
                 '/Vitamin C\s+(\d+(?:\.\d+)?)\s*mg/i',
                 '/Vitamin\s+C\s+(\d+(?:\.\d+)?)\s*mg/i'
             )),
             'vitamin_e' => array('patterns' => array(
-                '/Vitamin E\s+(\d+(?:\.\d+)?)\s*(?:IU|mg)/i',
-                '/Vitamin\s+E\s+(\d+(?:\.\d+)?)\s*(?:IU|mg)/i'
+                '/Vitamin E\s+(\d+(?:\.\d+)?)\s*IU/i',
+                '/Vitamin\s+E\s+(\d+(?:\.\d+)?)\s*IU/i'
             )),
             'vitamin_k' => array('patterns' => array(
-                '/Vitamin K\s+(\d+(?:\.\d+)?)\s*(?:mcg|μg)/i',
-                '/Vitamin\s+K\s+(\d+(?:\.\d+)?)\s*(?:mcg|μg)/i'
+                '/Vitamin K\s+(\d+(?:\.\d+)?)\s*mcg/i',
+                '/Vitamin\s+K\s+(\d+(?:\.\d+)?)\s*mcg/i'
             )),
             'vitamin_b1' => array('patterns' => array(
                 '/Vitamin B1\s+(\d+(?:\.\d+)?)\s*mg/i',
@@ -1404,22 +720,32 @@ class WC_Nutrition_Facts_Simple {
                 '/Vitamin\s+B6\s+(\d+(?:\.\d+)?)\s*mg/i'
             )),
             'vitamin_b12' => array('patterns' => array(
-                '/Vitamin B12\s+(\d+(?:\.\d+)?)\s*(?:mcg|μg)/i',
-                '/Vitamin\s+B12\s+(\d+(?:\.\d+)?)\s*(?:mcg|μg)/i'
+                '/Vitamin B12\s+(\d+(?:\.\d+)?)\s*mcg/i',
+                '/Vitamin\s+B12\s+(\d+(?:\.\d+)?)\s*mcg/i'
             )),
             'folate' => array('patterns' => array(
-                '/Folate\s+(\d+(?:\.\d+)?)\s*(?:mcg|μg)/i',
-                '/Folic Acid\s+(\d+(?:\.\d+)?)\s*(?:mcg|μg)/i'
+                '/Folate\s+(\d+(?:\.\d+)?)\s*mcg/i',
+                '/Folic Acid\s+(\d+(?:\.\d+)?)\s*mcg/i'
             )),
             'biotin' => array('patterns' => array(
-                '/Biotin\s+(\d+(?:\.\d+)?)\s*(?:mcg|μg)/i'
+                '/Biotin\s+(\d+(?:\.\d+)?)\s*mcg/i'
             )),
             'choline' => array('patterns' => array(
                 '/Choline\s+(\d+(?:\.\d+)?)\s*mg/i'
             )),
+            // Minerals
+            'calcium' => array('patterns' => array(
+                '/Calcium\s+(\d+(?:\.\d+)?)\s*mg/i'
+            )),
+            'iron' => array('patterns' => array(
+                '/Iron\s+(\d+(?:\.\d+)?)\s*mg/i'
+            )),
+            'potassium' => array('patterns' => array(
+                '/Potassium\s+(\d+(?:\.\d+)?)\s*mg/i',
+                '/Potasium\s+(\d+(?:\.\d+)?)\s*mg/i'
+            )),
             'phosphorus' => array('patterns' => array(
-                '/Phosphorus\s+(\d+(?:\.\d+)?)\s*mg/i',
-                '/Phosphorous\s+(\d+(?:\.\d+)?)\s*mg/i'
+                '/Phosphorus\s+(\d+(?:\.\d+)?)\s*mg/i'
             )),
             'magnesium' => array('patterns' => array(
                 '/Magnesium\s+(\d+(?:\.\d+)?)\s*mg/i'
@@ -1428,7 +754,7 @@ class WC_Nutrition_Facts_Simple {
                 '/Zinc\s+(\d+(?:\.\d+)?)\s*mg/i'
             )),
             'selenium' => array('patterns' => array(
-                '/Selenium\s+(\d+(?:\.\d+)?)\s*(?:mcg|μg)/i'
+                '/Selenium\s+(\d+(?:\.\d+)?)\s*mcg/i'
             )),
             'copper' => array('patterns' => array(
                 '/Copper\s+(\d+(?:\.\d+)?)\s*mg/i'
@@ -1437,10 +763,10 @@ class WC_Nutrition_Facts_Simple {
                 '/Manganese\s+(\d+(?:\.\d+)?)\s*mg/i'
             )),
             'chromium' => array('patterns' => array(
-                '/Chromium\s+(\d+(?:\.\d+)?)\s*(?:mcg|μg)/i'
+                '/Chromium\s+(\d+(?:\.\d+)?)\s*mcg/i'
             )),
             'molybdenum' => array('patterns' => array(
-                '/Molybdenum\s+(\d+(?:\.\d+)?)\s*(?:mcg|μg)/i'
+                '/Molybdenum\s+(\d+(?:\.\d+)?)\s*mcg/i'
             )),
             'chloride' => array('patterns' => array(
                 '/Chloride\s+(\d+(?:\.\d+)?)\s*mg/i'
@@ -1460,7 +786,6 @@ class WC_Nutrition_Facts_Simple {
         
         return $parsed_data;
     }
-    
 }
 
 // Initialize the plugin
