@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: WooCommerce Nutrition Facts - Simple
- * Plugin URI: https://yourwebsite.com
+ * Plugin URI: https://github.com/nirjondipo/woocommerce-nutrition-facts-acf/
  * Description: Simple nutrition facts fields for WooCommerce products using ACF Free
  * Version: 1.0.0
  * Author: Md Solaiman
@@ -606,7 +606,7 @@ class WC_Nutrition_Facts_Simple {
                              !empty($total_fat) || !empty($sodium) || !empty($carbohydrate) || !empty($protein);
 
         if (!$has_nutrition_data) {
-            return '<p>No nutrition information available for this product.</p>';
+            return ''; // Return empty string instead of message
         }
 
         // Standard Daily Values (same as original plugin)
