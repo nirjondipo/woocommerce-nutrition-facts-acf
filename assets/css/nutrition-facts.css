@@ -460,3 +460,6 @@
     box-sizing: border-box;
     vertical-align: middle;
 }
+body.no-nutrition-facts.nutrition-data-unavailable button#tab-nutrition{
+    display: none;
+}
