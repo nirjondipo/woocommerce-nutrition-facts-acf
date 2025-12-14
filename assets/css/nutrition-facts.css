@@ -463,3 +463,6 @@
 body.no-nutrition-facts.nutrition-data-unavailable button#tab-nutrition{
     display: none;
 }
+.nflc.std.nutrition-section {
+    padding-bottom: 100px;
+}

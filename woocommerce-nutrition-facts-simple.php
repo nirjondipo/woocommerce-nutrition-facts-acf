@@ -40,6 +40,9 @@ class WC_Nutrition_Facts_Simple {
         // Add hook to parse new_nutrition_info field
         add_action('acf/save_post', array($this, 'parse_nutrition_info_field'), 20);
         
+        // Lazy parsing for products updated via Air WP Sync or other external methods
+        add_action('template_redirect', array($this, 'maybe_parse_on_product_view'));
+        
         // Declare WooCommerce HPOS compatibility
         add_action('before_woocommerce_init', array($this, 'declare_woocommerce_compatibility'));
     }
@@ -109,6 +112,9 @@ class WC_Nutrition_Facts_Simple {
         if (empty($product_id)) {
             return ''; // Return empty string if no valid product ID
         }
+
+        // Check and parse nutrition data if needed (lazy parsing for Air WP Sync)
+        $this->maybe_parse_nutrition_data($product_id);
 
         // Get nutrition data from post_meta (parsed data)
         $nutrition_data = get_post_meta($product_id, '_nutrition_parsed_data', true);
@@ -618,6 +624,11 @@ class WC_Nutrition_Facts_Simple {
         // Get the new_nutrition_info field value
         $nutrition_info = get_field('new_nutrition_info', $post_id);
         
+        // Handle array input (from Air WP Sync)
+        if (is_array($nutrition_info) && !empty($nutrition_info)) {
+            $nutrition_info = $nutrition_info[0]; // Get first element
+        }
+        
         if (empty($nutrition_info)) {
             // Clear nutrition data if no source data
             delete_post_meta($post_id, '_nutrition_parsed_data');
@@ -633,6 +644,75 @@ class WC_Nutrition_Facts_Simple {
         } else {
             delete_post_meta($post_id, '_nutrition_parsed_data');
         }
+    }
+    
+    /**
+     * Check and parse nutrition data if needed (lazy parsing)
+     * Used when products are updated via Air WP Sync or other external methods
+     */
+    public function maybe_parse_nutrition_data($post_id) {
+        // Only process WooCommerce products
+        if (get_post_type($post_id) !== 'product') {
+            return;
+        }
+        
+        // Check if we already have parsed data
+        $existing_data = get_post_meta($post_id, '_nutrition_parsed_data', true);
+        if (!empty($existing_data)) {
+            return; // Already parsed, no need to check again
+        }
+        
+        // Check transient to avoid repeated parsing attempts
+        $transient_key = 'nutrition_parse_check_' . $post_id;
+        if (get_transient($transient_key)) {
+            return; // Already checked recently, skip
+        }
+        
+        // Get the new_nutrition_info field value
+        $nutrition_info = get_field('new_nutrition_info', $post_id);
+        
+        // Handle array input (from Air WP Sync)
+        if (is_array($nutrition_info) && !empty($nutrition_info)) {
+            $nutrition_info = $nutrition_info[0]; // Get first element
+        }
+        
+        if (empty($nutrition_info)) {
+            // Set transient to avoid checking again for 1 hour
+            set_transient($transient_key, 'checked', HOUR_IN_SECONDS);
+            return;
+        }
+        
+        // Parse the nutrition data
+        $parsed_data = $this->parse_nutrition_text($nutrition_info);
+        
+        // Store parsed data in post_meta
+        if (!empty($parsed_data)) {
+            update_post_meta($post_id, '_nutrition_parsed_data', $parsed_data);
+            // Clear transient on successful parse
+            delete_transient($transient_key);
+        } else {
+            // Set transient to avoid checking again for 1 hour if parsing failed
+            set_transient($transient_key, 'checked', HOUR_IN_SECONDS);
+        }
+    }
+    
+    /**
+     * Lazy parse nutrition data on product view (frontend)
+     * Uses transient to avoid performance impact
+     */
+    public function maybe_parse_on_product_view() {
+        // Only run on single product pages
+        if (!is_product() && !is_singular('product')) {
+            return;
+        }
+        
+        global $post;
+        if (!$post || get_post_type($post->ID) !== 'product') {
+            return;
+        }
+        
+        // Check and parse if needed
+        $this->maybe_parse_nutrition_data($post->ID);
     }
     
     /**
@@ -660,15 +740,23 @@ class WC_Nutrition_Facts_Simple {
             )),
             'calories' => array('patterns' => array(
                 '/Calories\s+(\d+)/i',
-                '/Calorie\s+(\d+)/i'
+                '/Calorie\s+(\d+)/i',
+                '/Energy\s+\d+kJ\/(\d+)kcal/i', // Energy 231kJ/55kcal
+                '/Energy\s+(\d+)\s*kcal/i' // Energy 55kcal
             )),
             'total_fat' => array('patterns' => array(
                 '/Total Fat\s+(\d+(?:\.\d+)?)\s*g/i',
-                '/Total\s+Fat\s+(\d+(?:\.\d+)?)\s*g/i'
+                '/Total\s+Fat\s+(\d+(?:\.\d+)?)\s*g/i',
+                '/Fat\s+<(\d+(?:\.\d+)?)\s*g/i', // Fat <0.5g (less than)
+                '/Fat\s+(\d+(?:\.\d+)?)\s*g/i' // Fat 0.5g
             )),
             'saturated_fat' => array('patterns' => array(
                 '/Saturated Fat\s+(\d+(?:\.\d+)?)\s*g/i',
-                '/Saturated\s+Fat\s+(\d+(?:\.\d+)?)\s*g/i'
+                '/Saturated\s+Fat\s+(\d+(?:\.\d+)?)\s*g/i',
+                '/of which saturates\s+<(\d+(?:\.\d+)?)\s*g/i', // of which saturates <0.1g
+                '/of which saturates\s+(\d+(?:\.\d+)?)\s*g/i', // of which saturates 0.1g
+                '/-of which saturates\s+<(\d+(?:\.\d+)?)\s*g/i', // -of which saturates <0.1g
+                '/-of which saturates\s+(\d+(?:\.\d+)?)\s*g/i' // -of which saturates 0.1g
             )),
             'trans_fat' => array('patterns' => array(
                 '/Trans Fat\s+(\d+(?:\.\d+)?)\s*g/i',
@@ -679,12 +767,14 @@ class WC_Nutrition_Facts_Simple {
                 '/Cholestrol\s+(\d+(?:\.\d+)?)\s*mg/i'
             )),
             'sodium' => array('patterns' => array(
-                '/Sodium\s+(\d+(?:\.\d+)?)\s*mg/i'
-            )),
+                '/Sodium\s+(\d+(?:\.\d+)?)\s*mg/i',
+                '/Salt\s+(\d+(?:\.\d+)?)\s*g/i' // Salt 3.7g - convert to sodium (salt * 400 = sodium in mg)
+            ), 'convert' => array('salt' => 400)), // Convert salt (g) to sodium (mg): salt * 400
             'carbohydrate' => array('patterns' => array(
                 '/Total Carbohydrate\s+(\d+(?:\.\d+)?)\s*g/i',
                 '/Total\s+Carbohydrate\s+(\d+(?:\.\d+)?)\s*g/i',
-                '/Carbohydrate\s+(\d+(?:\.\d+)?)\s*g/i'
+                '/Carbohydrate\s+(\d+(?:\.\d+)?)\s*g/i',
+                '/Carbohydrates\s+(\d+(?:\.\d+)?)\s*g/i' // Carbohydrates 11g (Airtable format)
             )),
             'fiber' => array('patterns' => array(
                 '/Dietary Fiber\s+(\d+(?:\.\d+)?)\s*g/i',
@@ -694,7 +784,9 @@ class WC_Nutrition_Facts_Simple {
             'sugar' => array('patterns' => array(
                 '/Total Sugars\s+(\d+(?:\.\d+)?)\s*g/i',
                 '/Total\s+Sugars\s+(\d+(?:\.\d+)?)\s*g/i',
-                '/Sugars\s+(\d+(?:\.\d+)?)\s*g/i'
+                '/Sugars\s+(\d+(?:\.\d+)?)\s*g/i',
+                '/of which sugars\s+(\d+(?:\.\d+)?)\s*g/i', // of which sugars 7.7g
+                '/- of which sugars\s+(\d+(?:\.\d+)?)\s*g/i' // - of which sugars 7.7g
             )),
             'added_sugars' => array('patterns' => array(
                 '/Includes\s+(\d+(?:\.\d+)?)\s*g\s+Added Sugars/i',
@@ -808,6 +900,13 @@ class WC_Nutrition_Facts_Simple {
             foreach ($config['patterns'] as $pattern) {
                 if (preg_match($pattern, $text, $matches)) {
                     $value = floatval($matches[1]);
+                    
+                    // Handle conversions (e.g., salt to sodium)
+                    if (isset($config['convert']) && isset($config['convert']['salt'])) {
+                        // Convert salt (g) to sodium (mg): salt * 400
+                        $value = $value * $config['convert']['salt'];
+                    }
+                    
                     $parsed_data[$field_name] = $value;
                     break; // Stop after first match
                 }
